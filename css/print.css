@@ -1,0 +1,24 @@
+/*
+Theme Name: Custom Theme
+Theme URI: https://wordpress.org/themes/custom_theme/
+Author: phani
+Author URI: https://wordpress.org/
+
+*/
+/* Print Style Sheet */
+@media print {
+.collumn.main 
+{ 
+	background:white; 
+	color:black; 
+	margin:0; 
+}
+
+.collumn.side,
+.print-link,
+.site-nav  
+{ 
+	display: none;
+}
+
+}

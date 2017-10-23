@@ -1,0 +1,48 @@
+/*
+Theme Name: Custom Theme
+Theme URI: https://wordpress.org/themes/custom_theme/
+Author: phani
+Author URI: https://wordpress.org/
+
+
+*/
+
+/* .site-header, .sidebar, .content, .site-footer { border: 5px solid black; } */
+/* .content, .sidebar, .site-footer { border-top: none;} */
+/* .sidebar.right { border-right : none;} */
+/* .sidebar.left { border-left: none;} */
+
+
+header.siteheader{
+	position: relative;
+	height: 100px;
+	width: 100%;
+	border: 10px solid black;
+}
+
+/* .content {
+	position: relative;
+	width: 100%;
+	height: 500px;
+}
+
+.sidebar {
+	position: relative;
+	width: 20%;
+	height: 100%;
+	border-top: none;	
+}
+.sidebar.left { float: left; }
+.sidebar.left:after,
+.sidebar.right:after {
+    clear: both;
+    content: "\0020";
+    display: block;
+    overflow: hidden;
+}
+.sidebar.right { float: right; }
+.site-footer {
+    position: relative; 
+    width: 100%;
+    height: 100px;
+} */
