@@ -447,6 +447,7 @@ function donate_retreival($type) {
     
     $s_expression="";
     $retrieve_now=FALSE;
+	$retrieve_donors=FALSE;
     
     ?>
     
@@ -459,9 +460,10 @@ function donate_retreival($type) {
             <td><label for="Search_on" > Select a value to <h2>search Donations</h2> </label></td>
             <td>                            
                 <select id="Search_on" name="s_criteria" onchange="handle_search(this.value)">
-                  <option value="show_all">ALL</option>                
+                  <option value="show_all">ALL DONATIONS</option>                
                   <option value="d_name">Name</option>
-                  <option value="dates">Dates</option>                           
+                  <option value="dates">Dates</option>                         
+				  <option value="donor_all">ALL DONORS</option>                	
                 </select>
             </td>
         </tr>
@@ -487,6 +489,8 @@ function donate_retreival($type) {
         global $wpdb;
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         $tb_donations = $wpdb->prefix.'gs_donations';
+		$tb_donors = $wpdb->prefix.'users';
+		$tb_donor_data = $wpdb->prefix.'usermeta';
 
         debug_print("data submitted ");
         if(!empty($_POST["s_criteria"])) {
@@ -522,7 +526,12 @@ function donate_retreival($type) {
                 debug_print("from $from_date to $to_date");
                 $sql_q = "SELECT * FROM $tb_donations WHERE DDATE >= \"$from_date\" AND DDATE <= \"$to_date\"";
 
-            } else {
+            } else if($s_criteria == 'donor_all'){
+				/* lists all the donors in database */
+				$retrieve_now=FALSE;
+				$retrieve_donors=TRUE;
+                $sql_q = "SELECT * FROM $tb_donors";
+			} else {
                 /* lists all the donations in database */
                 $retrieve_now=TRUE;
                 $sql_q = "SELECT * FROM $tb_donations";
@@ -531,8 +540,55 @@ function donate_retreival($type) {
         } else {
             $fname_error =" search expression empty";
         }
-    
-        /*retrieve data*/
+		/* Retrieve Donor Information*/
+		if($retrieve_donors) {
+			$results = $wpdb->get_results($sql_q);
+			if(!empty($results)) {
+				echo "<table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
+				echo "<tbody>";
+				?>
+				<tr>
+					<td>
+						<input type="checkbox" value ="<?php if(isset($_POST['select_all'])) { echo "ALL"; } else {echo "NONE";} ?>" 
+							id="select_all" name="select_all" onchange="handle_donor_selection(this)"> 
+							ALL 
+							</input>
+					</td>
+				</tr>
+				<?php
+				echo "<tr>" ;				
+				echo "<td><b>Select</b></td><td><b>DONOR ID</b></td>" ."<td><b>DONOR Name</b></td>"."<td><b>DONATIONS</b></td>" ;
+				echo "</tr>" ;
+				foreach($results as $row){                      
+					echo "<tr>";                           // Adding rows of table inside foreach loop
+					/* Pick a donor  */
+					echo "<td>";
+					?>
+					<input type="checkbox" id=<?php echo $row->ID ?>  name=<?php echo $row->ID ?> >
+					<?php
+					echo "</td>";
+					/* Donor ID */
+					echo "<td>";
+					echo "$row->ID";
+					echo "</td>";
+					/* Donor name */
+					echo "<td>";
+					echo "$row->display_name";
+					echo "</td>";
+					/* Number of donations done  */
+					echo "<td>";
+					echo "n_donations";
+					echo "</td>";
+					
+					echo "</tr>";
+				}				
+				echo "</tbody>";
+				echo "</table>";
+			} else {
+				echo "<h2>No Donor Information</h2>";
+			}
+		}
+        /*retrieve Donoations data*/
         if ($retrieve_now) {                 
             
             $gr_page = get_permalink( get_page_by_title( 'give_receipt' ) );
@@ -559,56 +615,55 @@ function donate_retreival($type) {
                 $results = $wpdb->get_results($sql_q." LIMIT $offset, $nr_page");
             }*/
             $results = $wpdb->get_results($sql_q);
-        }
-
-        if(!empty($results)) {
-            echo "<table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
-            echo "<tbody>";     
-            echo "<tr>" ;
-            echo "<td><b>DID</b></td>" ."<td><b>DONOR Name</b></td>"."<td><b>DDATE</b></td>"."<td><b>PMODE</b></td>"."<td><b>STATUS</b></td>"."<td><b>AMNT</b></td>" ;
-            echo "</tr>" ;
-            foreach($results as $row){                      
-                echo "<tr>";                           // Adding rows of table inside foreach loop
-                ?>
-                <td> 
-                    <a href="<?php echo $gr_page?>?donation_id=<?php echo $row->DID ?>" > <?php echo $row->DID ?> </a>
-                </td>
-
-                <?php                         
-                $tusr = $wpdb->get_row("SELECT * FROM wp_users WHERE "." ID = $row->UID");                 
-                ?>
-                    <td>
-                        <a href="<?php echo $usr_page?>?d_id=<?php echo $row->UID ?>" > <?php echo $tusr->display_name ?> </a>                   
-                    </td>
-                <?php                
-                 
-                echo "<td>" . $row->DDATE . "</td>";                                            
-                echo "<td>" . $row->PMODE . "</td>";
-                if ($row->STATUS == "PENDING") {                                        
-                ?>
-                    <td>
-                    <a href="<?php echo $gr_page?>?PMODE=<?php echo $row->DID ?>" > <?php echo $row->STATUS ?> </a>
-                    </td>
-                    <?php
-                } else {
-                    echo "<td>" . $row->STATUS . "</td>";
-                }
-                echo "<td>" . $row->AMNT . "</td>";                                     
-                echo "</tr>";
-            }
-            echo "</tbody>";
-            echo "</table><br>"; 
-            /*for($count = 1;$count<=$nrows; $count++) { */
-            ?>
-              <!--   <a href="<?php echo $c_page?>?p_indx=<?php echo $count ?>" > <?php echo $count ?> </a> -->
-             <?php  
-            /*}*/
         
 
-    } else {
-        echo "<h2> No records matching criteria </h2>";
-    }   
-    
+			if(!empty($results)) {
+				echo "<table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
+				echo "<tbody>";     
+				echo "<tr>" ;
+				echo "<td><b>DID</b></td>" ."<td><b>DONOR Name</b></td>"."<td><b>DDATE</b></td>"."<td><b>PMODE</b></td>"."<td><b>STATUS</b></td>"."<td><b>AMNT</b></td>" ;
+				echo "</tr>" ;
+				foreach($results as $row){                      
+					echo "<tr>";                           // Adding rows of table inside foreach loop
+					?>
+					<td> 
+						<a href="<?php echo $gr_page?>?donation_id=<?php echo $row->DID ?>" > <?php echo $row->DID ?> </a>
+					</td>
+
+					<?php                         
+					$tusr = $wpdb->get_row("SELECT * FROM wp_users WHERE "." ID = $row->UID");                 
+					?>
+						<td>
+							<a href="<?php echo $usr_page?>?d_id=<?php echo $row->UID ?>" > <?php echo $tusr->display_name ?> </a>                   
+						</td>
+					<?php                
+					 
+					echo "<td>" . $row->DDATE . "</td>";                                            
+					echo "<td>" . $row->PMODE . "</td>";
+					if ($row->STATUS == "PENDING") {                                        
+					?>
+						<td>
+						<a href="<?php echo $gr_page?>?PMODE=<?php echo $row->DID ?>" > <?php echo $row->STATUS ?> </a>
+						</td>
+						<?php
+					} else {
+						echo "<td>" . $row->STATUS . "</td>";
+					}
+					echo "<td>" . $row->AMNT . "</td>";                                     
+					echo "</tr>";
+				}
+				echo "</tbody>";
+				echo "</table><br>"; 
+				/*for($count = 1;$count<=$nrows; $count++) { */
+				?>
+				  <!--   <a href="<?php echo $c_page?>?p_indx=<?php echo $count ?>" > <?php echo $count ?> </a> -->
+				 <?php  
+				/*}*/
+        
+			} else {
+				echo "<h2> No records matching criteria </h2>";
+			}   
+		}    
     }    
 }
 

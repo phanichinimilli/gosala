@@ -87,3 +87,20 @@ function handle_search(val) {
 		
 	}
 }
+function handle_donor_selection() {
+	var checkboxes = document.getElementsByTagName('input');
+	if(document.getElementById('select_all').checked) {		
+		for (var i = 0; i < checkboxes.length; i++) {
+             if (checkboxes[i].type == 'checkbox') {
+                 checkboxes[i].checked = true;
+             }
+         }
+	} else {
+		for (var i = 0; i < checkboxes.length; i++) {
+             console.log(i)
+             if (checkboxes[i].type == 'checkbox') {
+                 checkboxes[i].checked = false;
+             }
+         }
+	}	
+}
