@@ -104,3 +104,7 @@ function handle_donor_selection() {
          }
 	}	
 }
+
+function print_donations(){
+	alert("The input value has changed. The new value is: ");
+}
