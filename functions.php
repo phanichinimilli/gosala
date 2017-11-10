@@ -586,7 +586,10 @@ function donate_retreival($type) {
 					?>
 					<tr>
 						<td>
-							<button name="p_button" onclick="print_donations()"> print </button>
+							<button name="p_button" onclick="print_donations()"> add donation </button>
+						</td>
+						<td>
+							Custom amount <input type="text" name="d_amount" value="1100" size ="10">
 						</td>
 					</tr>
 					<?php

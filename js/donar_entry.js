@@ -106,5 +106,31 @@ function handle_donor_selection() {
 }
 
 function print_donations(){
-	alert("The input value has changed. The new value is: ");
+	//alert("The input value has changed. The new value is: ");
+	
+	var checkboxes = document.getElementsByTagName('input');
+	var donors = [];
+	for (var i = 0; i < checkboxes.length; i++) {
+             if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked == true) {
+                 //alert("selected donation id is " + checkboxes[i].value);
+				 donors.push(checkboxes[i].value);
+             }
+    }
+	var xmlhttp=new XMLHttpRequest();
+	xmlhttp.onreadystatechange=function()
+	{     
+		if (xmlhttp.readyState==4 && xmlhttp.status==200)     {       
+			alert(xmlhttp.responseText);
+		}
+	}
+	var query = '';
+	for (var i = 0; i < donors.length; i++) {
+	  if (i > 0) {
+		query += '&';
+	  } // if
+	  query += 'q[' + i + ']=' + donors[i];
+	} // for
+	xmlhttp.open("GET","../tmp.php?q="+query,true);
+	xmlhttp.send(); 
+	//alert("The input value has changed. The new value is: ");
 }
