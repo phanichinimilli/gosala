@@ -1,4 +1,5 @@
 <?php 
+
 function handle_give_receipt($donation_id) {
 	global $wpdb;
 	/*$donation_id = $_REQUEST['donation_id'];*/

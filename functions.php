@@ -9,6 +9,12 @@ function debug_print($info) {
 }
 function gosala_script_enqueue() {
 	/* To Apply or include css */
+	//wp_enqueue_script('java_scrpts1',get_template_directory_uri().'/js/jquery-3.2.1.js',array(),'1.0.0',true);
+	wp_enqueue_script('jquery');
+	wp_register_script('fr_ajax',get_template_directory_uri().'/js/fr_ajax.js');
+	wp_localize_script( 'fr_ajax', 'myAjax', array( 'ajaxurl' => admin_url( 'admin-ajax.php')));
+	wp_enqueue_script('fr_ajax');
+
 	wp_enqueue_script('java_scrpts',get_template_directory_uri().'/js/donar_entry.js',array(),'1.0.0',true);
 	wp_enqueue_style('cstm_style', get_template_directory_uri() . '/css/style.css', array(), '1.0.0', 'all');
 	wp_enqueue_style('p_cstm_style', get_template_directory_uri() . '/css/print.css', array(), '1.0.0', 'all');
@@ -102,7 +108,51 @@ function print_button_shortcode( $atts ){
 }
 
 add_shortcode( 'print_button', 'print_button_shortcode' );
+function give_receipt($donation_id) {
+	global $wpdb;
+	/*$donation_id = $_REQUEST['donation_id'];*/
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    $tb_donations = $wpdb->prefix.'gs_donations';
+    $sql = "SELECT * FROM $tb_donations WHERE DID = $donation_id";
+    $g_udetails = "SELECT * FROM wp_users WHERE ";
 
+    $results = $wpdb->get_results($sql);
+    
+		
+	
+
+    if(!empty($results)) {
+        echo "<br><table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
+        ?>
+		<thead>
+		<h2 style="text-align: center;" > Donation Receipt <h2>
+		</thead>
+		<?php
+		echo "<tbody>";     
+        
+        foreach($results as $row){ 
+            // Adding rows of table inside foreach loop
+            echo "<tr><td>Received By </td><td> Sri Samartha Naryana Gosala,Jiyaguda</td></tr>"; 
+            echo "<tr><td>Donation Id </td><td>" . $row->DID . "</td></tr>"; 
+            $tusr = $wpdb->get_results($g_udetails."ID = $row->UID"); 
+            foreach ($tusr as $urow) {
+                echo "<tr><td>Name </td><td>Shri " . $urow->display_name . "</td></tr>";
+            }                                               
+            echo "<tr><td>Date </td><td>" . $row->DDATE . "</td></tr>"; 
+            echo "<tr><td>Payment Mode </td><td>" . $row->PMODE . "</td></tr>"; 
+            echo "<tr><td>Payment status </td><td>" . $row->STATUS . "</td></tr>"; 
+            echo "<tr><td>Paid amount </td><td>" . $row->AMNT . "</td></tr>";                            
+            
+        }
+        echo "</tbody>";				
+        echo "</table>";
+			
+
+    } else {
+        echo "no data";
+    }
+
+}
 function user_interaction($type) {	
     $update_donor = $add_donation = "FALSE";
     $fname = $lname = $email = $pswd = $gender = $amount = $user_name = $mobile= $dob = $unique_id="";
@@ -447,7 +497,7 @@ function donate_retreival($type) {
     
     $s_expression="";
     $retrieve_now=FALSE;
-	$retrieve_donors=FALSE;
+    $retrieve_donors=FALSE;
     if ($_SERVER["REQUEST_METHOD"] != "POST") {
     ?>   
             
@@ -538,7 +588,7 @@ function donate_retreival($type) {
 
             } else {
 				echo "No Data";
-			}
+	    }
 			/* Retrieve Donor Information*/
 			if($retrieve_donors) {
 				$results = $wpdb->get_results($sql_q);
@@ -564,7 +614,7 @@ function donate_retreival($type) {
 						/* Pick a donor  */
 						echo "<td>";
 						?>
-						<input type="checkbox" id=<?php echo $row->ID ?>  name=<?php echo $row->ID ?> value=<?php echo $row->ID ?> >
+						<input type="checkbox" class="drow"  name=<?php echo $row->ID ?> value=<?php echo $row->ID ?> >
 						<?php
 						echo "</td>";
 						/* Donor ID */
@@ -586,11 +636,14 @@ function donate_retreival($type) {
 					?>
 					<tr>
 						<td>
-							<button name="p_button" onclick="print_donations()"> add donation </button>
+							<button id="p_button" > add donation </button>
 						</td>
 						<td>
-							Custom amount <input type="text" name="d_amount" value="1100" size ="10">
+							Custom amount <input type="text" id="d_amount" value="1100" size ="10">
 						</td>
+						<div class ="return">
+						 	<p> place holder </p>
+						</div>
 					</tr>
 					<?php
 					echo "</tbody>";
@@ -631,6 +684,12 @@ function donate_retreival($type) {
 
 				if(!empty($results)) {
 					echo "<table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
+					echo "<thead>";
+					?>
+					<button id="p_all_don" > print </button>
+					<?php
+					echo "</thead>";
+
 					echo "<tbody>";     
 					echo "<tr>" ;
 					echo "<td><b>DID</b></td>" ."<td><b>DONOR Name</b></td>"."<td><b>DDATE</b></td>"."<td><b>PMODE</b></td>"."<td><b>STATUS</b></td>"."<td><b>AMNT</b></td>" ;
@@ -638,9 +697,13 @@ function donate_retreival($type) {
 					foreach($results as $row){                      
 						echo "<tr>";                           // Adding rows of table inside foreach loop
 						?>
+						<div class="donations" value = "<?php echo $row->DID ?>">
 						<td> 
-							<a href="<?php echo $gr_page?>?donation_id=<?php echo $row->DID ?>" > <?php echo $row->DID ?> </a>
+							<a href="<?php echo $gr_page?>?donation_id=<?php echo $row->DID ?>"  id="donations_a_id">  
+							<?php echo $row->DID ?> 
+							</a>
 						</td>
+						</div>
 
 						<?php                         
 						$tusr = $wpdb->get_row("SELECT * FROM wp_users WHERE "." ID = $row->UID");                 
@@ -663,6 +726,8 @@ function donate_retreival($type) {
 						}
 						echo "<td>" . $row->AMNT . "</td>";                                     
 						echo "</tr>";
+						?>
+						<?php
 					}
 					echo "</tbody>";
 					echo "</table><br>"; 
@@ -684,5 +749,42 @@ function donate_retreival($type) {
 
 add_shortcode('d_retreival', 'donate_retreival');
 
+add_action('wp_ajax_my_action','ajx_add_donations');
+add_action('wp_ajax_nopriv_my_action','ajx_dummy_donations');
+
+function ajx_add_donations () {
+
+    global $wpdb;
+    if ($_REQUEST["operation"]== 'add_off_don') {
+    print_r($_REQUEST["donors"]);
+	    $adv_don=json_decode(stripslashes($_REQUEST['donors']),true);
+	    print_r($adv_don);
+
+	    $dtype = 'OFFLINE';
+	    $d_status = 'PENDING';
+	    $ddate = current_time( 'mysql' );
+	    foreach ( $adv_don['id'] as $did) {
+		    $donation_e = array (
+				    'UID' => $did,
+				    'STATUS' => $d_status,
+				    'PMODE'  => $dtype,
+				    'AMNT'   => $adv_don['amnt'],
+				    'DDATE'  => $ddate
+				    );
+
+		    $d_id = update_donation_entry($donation_e);
+	    }
+	    echo json_encode("<h3> Thank you for Contribution <strong> donor id = ".$adv_don['id'][0]." amnt = ". $adv_don['amnt'] ." ndonations = ".count($adv_don['id'])."</strong></h3>");
+    } else if($_REQUEST["operation"] == 'print_receipts'){
+    	//print_r("not a valid operation ");
+	//echo json_encode("print all the donations in the page");
+	give_receipt(1);
+    }
+
+}
+
+function ajx_dummy_donations() {
+	echo "dummy function ";
+}
 ?>
 
