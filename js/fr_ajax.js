@@ -10,7 +10,8 @@ jQuery(document).ready(function() {
                         			 donor_ids.push(donor_arr[i].text);
                         }
 			console.log(donor_ids);
-			//jQuery(this).parent().empty();
+			parentobj = jQuery(this).parent().parent();
+			jQuery(this).parent().remove();
 			jQuery.ajax({
 				type:"POST",
 				//dataType : "json",
@@ -20,8 +21,11 @@ jQuery(document).ready(function() {
 					"operation" : "print_receipts",
 				},
 				success:function(response){
-					console.log("success "+ response );
-					jQuery("#p_all_don").parent().html(response);
+					console.log("success "+ response);
+                    receipts = JSON.parse(response);
+                    jQuery.each(receipts, function (key,value) {
+                            jQuery(parentobj).append(value.did);
+                    });
 				},
 				error: function(response) {
 					console.log("error" + response);
