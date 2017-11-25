@@ -528,9 +528,10 @@ function user_interaction($type) {
                 <tr >
                 <td id="sexp_l" style="display: none">Search expression</td>
                 <td>                
-                <input id="sexp_t" style="display: none" type="text"  name="s_expression" placeholder="Enter now" size ="30" style="display: none">
-                <input id="sexp_fd" style="display: none" type="date"  name="from_date" id="fdate" style="display: none">
-                <input id="sexp_td" style="display: none"type="date"  name="to_date" id="todate" style="display: none">
+                <input id="sexp_t" style="display: none" type="text"  name="s_expression" placeholder="Enter now" size ="30" >
+                <input id="sexp_fd" style="display: none" type="date"  name="from_date" >
+                <input id="sexp_td" style="display: none" type="date"  name="to_date"  >
+                <input id="sexp_addr" style="display: none" type="text"  name="u_addr"  >
                 </td>
                 </tr>
 
@@ -589,7 +590,9 @@ function user_interaction($type) {
                     /* lists all the donors in database */
                     $retrieve_now=FALSE;
                     $retrieve_donors=TRUE;
-                    $sql_q = "SELECT * FROM $tb_donors";
+		    $addr = $_POST["u_addr"];
+                    $sql_q = "SELECT * FROM $tb_donors LEFT JOIN $tb_donor_data ON $tb_donors.ID = $tb_donor_data.user_id 
+		    		WHERE meta_key='ADDRESS' AND meta_value LIKE '%$addr%' ";
                 } else if($s_criteria == 'show_all') {
                     /* lists all the donations in database */
                     $retrieve_now=TRUE;

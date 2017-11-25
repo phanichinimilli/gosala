@@ -63,8 +63,6 @@ function handle_search(val) {
 		document.getElementById('sexp_t').style.display='table-cell';
 		document.getElementById('sexp_fd').style.display='none';
 		document.getElementById('sexp_td').style.display='none';	
-		document.getElementById('fdate').style.display='none';	
-		document.getElementById('todate').style.display='none';	
 		
 	} else if(val == "dates"){
 		
@@ -73,18 +71,13 @@ function handle_search(val) {
 		document.getElementById('sexp_fd').style.display='table-cell';
 		document.getElementById('sexp_td').style.display='table-cell';
 		
-		document.getElementById('fdate').style.display='table-cell';	
-		document.getElementById('todate').style.display='table-cell';				
 	} else {
 		
-		document.getElementById('sexp_l').style.display='none';
+		document.getElementById('sexp_l').style.display='table-cell';
 		document.getElementById('sexp_t').style.display='none';
 		document.getElementById('sexp_fd').style.display='none';
 		document.getElementById('sexp_td').style.display='none';
-		document.getElementById('fdate').style.display='none';	
-		document.getElementById('todate').style.display='none';
-			
-		
+		document.getElementById('sexp_addr').style.display='table-cell';
 	}
 }
 function handle_donor_selection() {

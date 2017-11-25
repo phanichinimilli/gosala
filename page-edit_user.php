@@ -111,7 +111,7 @@ if(have_posts()) {
 			            	<label>Address : </label>	            
 			            </td>	
 			            <td>
-			            	<textarea name="u_addr" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>"> </textarea> 
+			            	<textarea name="u_addr" placeholder="<?php echo $ph; ?>" ><?php echo $value; ?> </textarea> 
 			            </td>
 		            </tr>
 
