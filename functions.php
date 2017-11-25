@@ -153,8 +153,8 @@ function give_receipt($donation_id) {
 }
 function user_interaction($type) {	
     $update_donor = $add_donation = "FALSE";
-    $fname = $lname = $email = $pswd = $gender = $amount = $user_name = $mobile= $dob = $unique_id="";
-    $new_donor = $pswd_error = $email_error = $genderErr = $dtype = $dtypeErr =$uname_error = $mobileErr= $dobErr = $unique_idErr="";
+    $fname = $lname = $email = $pswd = $gender = $amount = $user_name = $mobile= $dob = $unique_id=$address="";
+    $new_donor = $pswd_error = $email_error = $genderErr = $dtype = $dtypeErr =$uname_error = $mobileErr= $dobErr = $unique_idErr=$addressErr="";
     $tb_donations = "table_donations";	
     $user_id = "";
     $gr_page = get_permalink( get_page_by_title( 'give_receipt' ) );
@@ -214,6 +214,12 @@ function user_interaction($type) {
                 $genderErr = "Gender is required";
             }
 
+            /*Address validation*/
+            if (!empty($_POST["u_addr"])) {
+                $address = test_input($_POST["u_addr"]);
+            } else {                            
+                $addressErr = "Address is required";
+            }
             /*Mobile Number validation*/
             if (!empty($_POST["mob_num"])) {
                 $mobile = test_input($_POST["mob_num"]);
@@ -342,7 +348,8 @@ function user_interaction($type) {
                     'GENDER'     => $gender,
                     'MOBILE'     => $mobile,
                     'DOB'        => date('Y-m-d',strtotime($dob)),
-                    'UNIQUE_ID'  => $unique_id,                    
+                    'UNIQUE_ID'  => $unique_id,
+                    'ADDRESS'    => $address,
                     );    
             $user_id = update_donor_info($userdata,$user_metadata);
             echo "<h3> Congratulations <strong>$fname</strong></h3> <br>";
@@ -447,6 +454,10 @@ function user_interaction($type) {
             <tr id="u_dob">
             <td>Date of Birth</td>
             <td><input type="date" class="demoInputBox" name="u_dob" value="" ></td>
+            </tr>
+            <tr id="u_addr">
+            <td>Address</td>
+            <td><textarea rows="4" cols="50" class="demoInputBox" name="u_addr" value="" placeholder="Your address"></textarea></td>
             </tr>
             <tr id="u_unique_id">
             <td>Identification ID</td>
@@ -592,6 +603,7 @@ function user_interaction($type) {
                     $results = $wpdb->get_results($sql_q);
                     if(!empty($results)) {
                         //echo "<form>";
+                        echo " <p class = 'sucs_msg'>  </p>";
                         echo "<table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
                         echo "<tbody>";
                         ?>
@@ -639,9 +651,6 @@ function user_interaction($type) {
                             <td>
                             Custom amount <input type="text" id="d_amount" value="1100" size ="10">
                             </td>
-                            <div class ="return">
-                            <p> place holder </p>
-                            </div>
                             </tr>
                             <?php
                             echo "</tbody>";

@@ -81,6 +81,7 @@ error: function(response) {
 				},
 				success:function(response){
 					console.log("success "+ response );
+                    jQuery(".sucs_msg").append("<h3>Advanced receipts added successfully <br> please check donations page</h3>");
 				},
 				error: function(response) {
 					console.log("error" + response);

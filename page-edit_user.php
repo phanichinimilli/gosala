@@ -9,7 +9,7 @@ if(have_posts()) {
 	?>								
 	<?php
 	if ($_SERVER["REQUEST_METHOD"] == "POST") {
-		debug_print("fname".$_POST["fname"]."lname".$_POST["lname"]."mobile".$_POST["mobile"]."gender ".$_POST["gender"]."dob ".$_POST["dob"]."u_id ".$_POST["u_id"]."user id ".$_POST["id"]);
+		debug_print("fname".$_POST["fname"]."lname".$_POST["lname"]."mobile".$_POST["mobile"]."gender ".$_POST["gender"]."dob ".$_POST["dob"]."u_id ".$_POST["u_id"]."user id ".$_POST["id"]."address ".$_POST["u_addr"]);
 		$user_id = test_input($_POST["id"]);
 		$user_metadata = array(
                     'f_name' => test_input($_POST["fname"]),
@@ -17,7 +17,8 @@ if(have_posts()) {
                     'GENDER'     => test_input($_POST["gender"]),
                     'MOBILE'     => test_input($_POST["mobile"]),
                     'DOB'        => test_input(date('Y-m-d',strtotime($_POST["dob"]))),
-                    'UNIQUE_ID'  => test_input($_POST["u_id"]),                    
+                    'UNIQUE_ID'  => test_input($_POST["u_id"]),                   
+                    'ADDRESS'    => test_input($_POST["u_addr"]),
                 );
 		/* populate meta data*/
 		//update_user_meta();
@@ -95,6 +96,25 @@ if(have_posts()) {
 			            	<input type="text" name="lname" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>"> 
 			            </td>
 		            </tr>
+		        <?php
+			        $key = 'ADDRESS';
+			        $ph = "";
+			        $value = get_user_meta($user_id,$key,true);
+			        if(empty($value)) {
+			        	debug_print("Check the SQL querry");
+			        	$value ="";
+			        	$ph="$default_text";		        	
+			        }			        
+		        ?>
+		        	<tr>
+			            <td>
+			            	<label>Address : </label>	            
+			            </td>	
+			            <td>
+			            	<textarea name="u_addr" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>"> </textarea> 
+			            </td>
+		            </tr>
+
 		        <?php
 			        $key = 'MOBILE';
 			        $ph = "";
