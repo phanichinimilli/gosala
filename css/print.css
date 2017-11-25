@@ -7,18 +7,47 @@ Author URI: https://wordpress.org/
 */
 /* Print Style Sheet */
 @media print {
-.collumn.main 
-{ 
-	background:white; 
-	color:black; 
-	margin:0; 
+@page {
+    size: A4;
+    @top-right {
+        content:  "receipt bayya";
+        margin: 30pt 0 10pt 0;
+        font-size: 9pt;
+        color: #333;
+    }   
+    @top-right {
+        content: "phani";
+        margin: 30pt 0 10pt 0;
+        font-size: 8pt;
+    }
 }
 
+.receipt {
+    background:white;
+    color:black;
+    margin:0;
+    page-break-after: always;
+}
 .collumn.side,
 .print-link,
-.site-nav  
+.site-nav,
+.site-header,
+.site-footer,
+.log_in_out    
 { 
 	display: none;
 }
 
+
+
 }
+
+@media screen
+{
+.receipt
+{
+display:none;
+}
+
+}
+

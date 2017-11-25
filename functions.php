@@ -684,7 +684,7 @@ function user_interaction($type) {
                         echo "<table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
                         echo "<thead>";
                         ?>
-                            <button id="p_all_don" > print </button>
+                            <button id="p_all_don" > print all </button>
                             <?php
                             echo "</thead>";
 
