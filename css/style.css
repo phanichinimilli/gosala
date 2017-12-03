@@ -148,7 +148,35 @@ div.container {
 	border-top: 1px solid var(--main-color);
 	font-size: 84%;	
  } 
+div.don_receipt {
+    border-style: solid;
+    border-width: medium;
+    border-radius: 8px;
+    margin: 0 0 5px 0 ;
+    padding: 0 3px 5px 3px;
+}
+div.don_receipt h2,h3,h4 {
+    margin-bottom : 0px;
+    font-weight : bold;
+}
+div.don_receipt h4 {
+    padding-top : 0px;
+    font-weight : bold;
+}
+div.don_receipt h2,h3,h4,p{
+    text-align : center;
+    margin-top : 0px;
+}
+div.don_receipt thead {
+    line-height: 0.8;
 
+}
+div.don_receipt tbody {
+    padding-top : 5px;
+    margin-top :5px;
+    line-height: 1.8;
+    letter-spacing: 1px;
+}
 .print-link {
 display:inline-block;
 float:left;

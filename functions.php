@@ -32,26 +32,25 @@ function gosala_theme_setup() {
     register_nav_menu('primary','Primary navigation menu');
     register_nav_menu('secondary','secondary navigation menu');	
 
-    /* create donations table */    
     $users_tb = $wpdb->prefix.'users';
     $tb_donations = $wpdb->prefix.'gs_donations';        
     $charset_collate = $wpdb->get_charset_collate();
 
+    /* create donations table */    
     $sql = "CREATE TABLE $tb_donations (
         DID BIGINT(20) NOT NULL AUTO_INCREMENT,                 
-            UID BIGINT(20) unsigned NOT NULL ,
-            PMODE tinytext,                 
-            STATUS tinytext,
-            AMNT decimal(10,2),
+        UID BIGINT(20) unsigned NOT NULL ,
+        PMODE tinytext,                 
+        STATUS tinytext,
+        AMNT decimal(10,2),
             DDATE date ,                              
             PRIMARY KEY (DID),               
             FOREIGN KEY (UID) REFERENCES $users_tb(ID)
-                ) $charset_collate;";
+        ) $charset_collate;";
 
 
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php');               
-    dbDelta( $sql );         
-    wp_enqueue_script('java_scrpts',get_template_directory_uri().'/js/donar_entry.js',array(),'1.0.0',true);
+require_once( ABSPATH . 'wp-admin/includes/upgrade.php');               
+dbDelta( $sql );         
 
 }
 
@@ -64,6 +63,45 @@ function new_excerpt_more($more) {
 add_filter('excerpt_more', 'new_excerpt_more');
 
 /* local functions */
+function lookup_donor($d_uid) {
+    global $wpdb;
+    $tb_donors = $wpdb->prefix."users";
+    $tb_donor_data = $wpdb->prefix."usermeta";
+    $results = "";
+    //echo "input $d_uid ";
+    /* we accept email , mobile number , gosala generated unique id as user names */
+    if(strpos($d_uid,"@")) {
+        /* Assuming it as email */
+        $sql_q = "SELECT * FROM $tb_donors WHERE user_email = \"$d_uid\"";
+        $results = $wpdb->get_results($sql_q);
+        if(!empty($results)) {
+            return $results[0]->ID;
+        } else {
+            return FALSE;
+        }
+    } else if(is_numeric($d_uid)){
+        /* Assuming it as Mobile number */
+        $sql_q = "SELECT * FROM $tb_donors WHERE user_login = \"$d_uid\"";
+        $results = $wpdb->get_results($sql_q);
+        if(!empty($results)) {
+            //echo "<br>user id is ".$results[0]->user_login;
+            return $results[0]->ID;
+        } else {
+            return FALSE;
+        }
+    } else {
+        /* Assuming it as Gosala ID */
+        $sql_q = "SELECT * FROM $tb_donor_data WHERE meta_key = 'DONOR_ID' AND meta_value = \"$d_uid\"";
+        $results = $wpdb->get_results($sql_q);
+        if(!empty($results)) {
+            //echo "<br>user id is ".$results[0]->user_id;
+            return $results[0]->user_id;
+        } else {
+            return FALSE;
+        }
+
+    }
+}
 function validate_user_login( $uname,$pass) {
     $user = get_user_by( 'login', $uname );
     if ( $user && wp_check_password( $pass, $user->data->user_pass, $user->ID) )
@@ -78,19 +116,29 @@ function test_input($data) {
     return $data;
 }/*function test_input*/
 
+function generate_duid($user_id) {
+    $cdate = getdate();
+    $duid = sprintf("GS%02s%02s%02s%04s",$cdate[mday],$cdate[mon],substr($cdate[year],-2),$user_id);
+    return $duid;
+}
+
 function update_donor_info(array $userdata,array $user_metadata) {    
     /*create an entry for new donor*/   
-    $user_id = wp_insert_user( $userdata ) ;
-
-    //On success
+    $user_id = wp_insert_user($userdata);
+    /* On success */
+    //printf("unique id generated for user id =%s is %s \n",$user_id,generate_duid($user_id));
     if ( ! is_wp_error( $user_id ) ) {
         debug_print("User created : ". $user_id);
-    }
 
-    foreach ($user_metadata as $mkey => $mvalue) {
-# code...
-        add_user_meta($user_id,$mkey,$mvalue);
+        add_user_meta($user_id,"DONOR_ID",generate_duid($user_id));
+        foreach ($user_metadata as $mkey => $mvalue) {
+            # code...
+            add_user_meta($user_id,$mkey,$mvalue);
+        }
+    } else {
+        echo "Issue is Updating Donor Information";
     }
+    return $user_id;
 }
 
 function update_donation_entry(array $d_entry) {
@@ -121,12 +169,12 @@ function give_receipt($donation_id) {
 
     if(!empty($results)) {
         echo "<br><table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
-        ?>
+?>
             <thead>
             <h2 style="text-align: center;" > Donation Receipt <h2>
             </thead>
-            <?php
-            echo "<tbody>";     
+<?php
+        echo "<tbody>";     
 
         foreach($results as $row){ 
             // Adding rows of table inside foreach loop
@@ -157,6 +205,7 @@ function user_interaction($type) {
     $new_donor = $pswd_error = $email_error = $genderErr = $dtype = $dtypeErr =$uname_error = $mobileErr= $dobErr = $unique_idErr=$addressErr="";
     $tb_donations = "table_donations";	
     $user_id = "";
+    $uid="";
     $gr_page = get_permalink( get_page_by_title( 'give_receipt' ) );
     global $d_id;
 
@@ -185,16 +234,18 @@ function user_interaction($type) {
                 $lname_error ="lastname name empty";
             }
             /*password validation*/
-            if(!empty($_POST["password"]) && !empty($_POST["confirm_password"])) {
-                $pswd1 = test_input($_POST["password"]);
-                $pswd2 = test_input($_POST["confirm_password"]);
-                if($pswd1 != $pswd2) {								
-                    $pswd_error = "Passwords are not matching";
+            if(!is_user_logged_in()) {
+                if(!empty($_POST["password"]) && !empty($_POST["confirm_password"])) {
+                    $pswd1 = test_input($_POST["password"]);
+                    $pswd2 = test_input($_POST["confirm_password"]);
+                    if($pswd1 != $pswd2) {								
+                        $pswd_error = "Passwords are not matching";
+                    } else {
+                        $pswd = $pswd1;
+                    }
                 } else {
-                    $pswd = $pswd1;
+                    $pswd_error = "Passwords are not matching";
                 }
-            } else {
-                $pswd_error = "Passwords are not matching";
             }
             /*email address validation*/
             if(!empty($_POST["userEmail"])){
@@ -299,19 +350,14 @@ function user_interaction($type) {
         } else if($new_donor=="Existing") {
             debug_print("Donation by existing user");			
 
-            if(!empty($_POST["password"])) {
-                $pswd = test_input($_POST["password"]);                
+            if(!empty($_POST["donor_id"])) {
+                $d_uid = test_input($_POST["donor_id"]);                
             } else {
-                $pswd_error = "Please enter your password";
+                $d_uid_error = "Please enter your username or mobile or gosala id";
             }
 
-            if(!empty($_POST["user_login"])) {
-                $user_name = test_input($_POST["user_login"]);                
-            } else {
-                $uname_error = "Please enter your username";
-            }
-
-            if (validate_user_login($user_name,$pswd) == TRUE) {
+            //if (validate_user_login($user_name,$pswd) == TRUE) {
+            if (($uid = lookup_donor($d_uid)) != FALSE ) {
                 $add_donation = "TRUE";
                 if (!empty($_POST["don_type"])) {
                     $dtype = test_input($_POST["don_type"]);
@@ -337,22 +383,25 @@ function user_interaction($type) {
             debug_print(" add new donor $fname "."$lname "."$pswd "."$email "."$gender ");
 
             $userdata = array(
-                    'user_login'     => $email,
-                    'user_pass'      => $pswd,  // When creating an user, `user_pass` is expected.
-                    'user_email'     => $email,                    
-                    );
+                'user_login'     => $mobile,
+                'user_pass'      => $pswd,  // When creating an user, `user_pass` is expected.
+                'user_email'     => $email,
+                'role'           => 'subscriber',               
+                'first_name'     => $fname,
+                'last_name'      => $lname,
+                'description'    => "employee",
+                'display_name'   => $fname,
+            );
 
             $user_metadata = array(
-                    'f_name' => $fname,
-                    'l_name'  => $lname,
-                    'GENDER'     => $gender,
-                    'MOBILE'     => $mobile,
-                    'DOB'        => date('Y-m-d',strtotime($dob)),
-                    'UNIQUE_ID'  => $unique_id,
-                    'ADDRESS'    => $address,
-                    );    
+                'GENDER'     => $gender,
+                'MOBILE'     => $mobile,
+                'DOB'        => date('Y-m-d',strtotime($dob)),
+                'UNIQUE_ID'  => $unique_id,
+                'ADDRESS'    => $address,
+            );    
             $user_id = update_donor_info($userdata,$user_metadata);
-            echo "<h3> Congratulations <strong>$fname</strong></h3> <br>";
+            echo "<h3> Congratulations <strong>$fname</strong></h3>";
 
             /**/
         } /*$update_donor == "TRUE"*/
@@ -370,35 +419,34 @@ function user_interaction($type) {
                 $d_status = "DONE";
             }
 
-            if($update_donor == "FALSE") { 
-                $user_id = get_user_by(login,"$user_name");
-            } else {
-                $user_id = get_user_by(login,"$email");
+            if($update_donor != "FALSE") { 
+                //$user_id = get_user_by(login,"$user_name");
+                //$uid = $user_id->ID;
+                //} else {
+                $uid = $user_id;
             }
-            debug_print("user id ".$user_id->ID);
+            debug_print("user id ".$user_id);
             $ddate = current_time( 'mysql' );				
             $donation_e = array ( 
-                    'UID' => $user_id->ID,
-                    'STATUS' => $d_status,
-                    'PMODE'  => $dtype,
-                    'AMNT'   => $amount,    
-                    'DDATE'  => $ddate                   
-                    );
+                'UID' => $uid,
+                'STATUS' => $d_status,
+                'PMODE'  => $dtype,
+                'AMNT'   => $amount,    
+                'DDATE'  => $ddate                   
+            );
 
             $d_id = update_donation_entry($donation_e);
             echo "<h3> Thank you for Contribution <strong>$amount</strong></h3>";
 
-            ?>
+?>
                 <a href="<?php echo $gr_page ?>?donation_id=<?php echo $d_id ?>" > <button type="button">Get Receipt</button> </a>
-                <?php
+<?php
 
         } /*end $add_donation == "TRUE"*/
         ?> <!--  <script>window.location = "<?php echo home_url('/donate_redirect/');?>"</script> -->  <?php
     } else {
-        //echo " data to be entered";
-        /* end else if ($_SERVER["REQUEST_METHOD"] == "POST") {*/
-        ?>
-
+?>
+            
             <h2><strong>Donor Information</strong></h2>	
             <form id="reg" name="frmRegistration" method="post" action=""<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"">
             <table border="0" width="500" align="center" class="demo-table">
@@ -407,83 +455,128 @@ function user_interaction($type) {
             <td><label for="donortype">Donor type</label></td>
             <td>
 
-            <select id="donortype" name="new_donor" onchange="display_apt_ele(this.value)">
+            <!-- <select id="donortype_jx" name="new_donor" onchange="display_apt_ele(this.value)"> -->
+            <select id="donortype_jx" name="new_donor" >
             <option value="New">Register</option>
             <option value="Existing">Existing user</option>
-            <option value="Anonymous">Anonymous donation</option>
+            <!--
+            <option value="Anonymous">Anonymous donation</option> 
+            -->
             </select>
             </td>
             </tr>
 
             <tr id="fname">
-            <td>First Name</td>
-            <td><input type="text" class="demoInputBox" name="firstName" value="<?php if(isset($_POST['firstName'])) echo $_POST['firstName']; ?>" size ="30"></td>
+                <td>First Name</td>
+                <td>
+                    <input type="text" class="demoInputBox" name="firstName" 
+                           value="<?php if(isset($_POST['firstName'])) echo $_POST['firstName']; ?>" 
+                           size ="30" > 
+                </td>
             </tr>
             <tr id="lname">
-            <td>Last Name</td>
-            <td><input type="text" class="demoInputBox" name="lastName" value="<?php if(isset($_POST['lastName'])) echo $_POST['lastName']; ?>" size ="30"></td>
+                <td>Last Name</td>
+                <td>
+                    <input type="text" class="demoInputBox" name="lastName" 
+                           value="<?php if(isset($_POST['lastName'])) echo $_POST['lastName']; ?>" 
+                           size ="30"> 
+                </td>
             </tr>
-            <tr id="email">
-            <td>Email</td>
-            <td><input type="email" class="demoInputBox" name="userEmail" value="<?php if(isset($_POST['userEmail'])) echo $_POST['userEmail']; ?>" size ="30"></td>
-            </tr>					
-            <tr id="uname" style="display: none;">
-            <td>User Name</td>
-            <td><input type="text" class="demoInputBox" name="user_login" value="<?php if(isset($_POST['user_login'])) echo $_POST['user_login']; ?>" size ="30"></td>
-            </tr>
-            <tr id="password">
-            <td>Password</td>
-            <td><input type="password" class="demoInputBox" name="password" value="" size ="30"></td>
-            </tr>
-            <tr id="cpassword">
-            <td>Confirm Password</td>
-            <td><input type="password" class="demoInputBox" name="confirm_password" value="" size ="30"></td>
+            <tr id="d_uid" style="display:none">
+                <td>Donor ID</td>
+                <td>
+                    <input type="text" class="demoInputBox" name="donor_id" 
+                           placeholder="Donor Id or mobile or email" 
+                           value="<?php if(isset($_POST['donor_id'])) echo $_POST['donor_id']; ?>"
+                           size ="30"> 
+                </td>
             </tr>
 
+            <tr id="email">
+                <td>Email</td>
+                <td>
+                    <input type="email" class="demoInputBox" name="userEmail" 
+                           placeholder="E-mail address" 
+                           value="<?php if(isset($_POST['userEmail'])) echo $_POST['userEmail']; ?>" 
+                           size ="30">
+                </td>
+            </tr>					
+            <?php if(!is_user_logged_in()) { ?>
+            <!-- Displayed only for non-registered users -->
+            <tr id="password">
+                <td>Password</td>
+                <td><input type="password" class="demoInputBox" name="password" value="" size ="30"></td>
+            </tr>
+            <tr id="cpassword">
+                <td>Confirm Password</td>
+                <td><input type="password" class="demoInputBox" name="confirm_password" value="" size ="30"></td>
+            </tr>
+<?php } ?>
             <tr id="gender">
-            <td>Gender</td>
-            <td>
-            <input type="radio" name="gender" value="Male" <?php if(isset($_POST['gender']) && $_POST['gender']=="Male") { ?>checked<?php  } ?>> Male
-            <input type="radio" name="gender" value="Female" <?php if(isset($_POST['gender']) && $_POST['gender']=="Female") { ?>checked<?php  } ?>> Female
-            </td>
+                <td>Gender</td>
+                <td>
+                    <input type="radio" name="gender" 
+                           value="Male" <?php if(isset($_POST['gender']) && $_POST['gender']=="Male") 
+                            { ?>checked<?php  } ?>
+                    > Male
+                    <input type="radio" name="gender" 
+                           value="Female" <?php if(isset($_POST['gender']) && $_POST['gender']=="Female") 
+                            { ?>checked<?php  } ?>
+                    > Female
+                </td>
             </tr>
             <tr id="mob_num">
-            <td>Mobile Number</td>
-            <td><input type="tel" class="demoInputBox" name="mob_num" value="" size ="10" maxlength="10" minlength="10"></td>
+                <td>Mobile Number</td>
+                <td>
+                    <input type="tel" class="demoInputBox" name="mob_num" 
+                           value="" placeholder="" size ="10" maxlength="10" 
+                    minlength="10">
+                </td>
             </tr>
             <tr id="u_dob">
-            <td>Date of Birth</td>
-            <td><input type="date" class="demoInputBox" name="u_dob" value="" ></td>
+                <td>Date of Birth</td>
+                <td><input type="date" class="demoInputBox" name="u_dob" value="" ></td>
             </tr>
             <tr id="u_addr">
-            <td>Address</td>
-            <td><textarea rows="4" cols="50" class="demoInputBox" name="u_addr" value="" placeholder="Your address"></textarea></td>
+                <td>Address</td>
+                <td>
+                    <textarea rows="4" cols="50" class="demoInputBox" name="u_addr" value="" 
+                        placeholder="Your address" >
+                    </textarea>
+                </td>
             </tr>
             <tr id="u_unique_id">
-            <td>Identification ID</td>
-            <td><input type="number" class="demoInputBox" name="u_unique_id" value="Aadhar card No" size ="16"></td>
+                <td>Identification ID</td>
+                <td>
+                    <input type="number" class="demoInputBox" name="u_unique_id" placeholder="Aadhar card No" 
+                           size ="16">
+                </td>
             </tr>
             <tr>
-            <td><label for="donationtype">Donate as</label></td>
-            <td>							
-            <select id="donationtype" name="don_type" onchange="handle_donation(this.value)">						      
-            <option value="OFFLINE">offline</option>
-            <option value="CHEQUE">cheque</option>
-            <option value="CASH">cash</option>
-            <option value="ONLINE">online</option>						      
-            <option value="NO_DONATION">Donate later</option>
-            </select>
-            </td>
+                <td><label for="donationtype">Donate as</label></td>
+                <td>							
+                <select id="donationtype" name="don_type" onchange="handle_donation(this.value)">
+                    <option value="OFFLINE">offline</option>
+                    <option value="CHEQUE">cheque</option>
+                    <option value="CASH">cash</option>
+                    <option value="ONLINE">online</option>						      
+                    <option value="NO_DONATION">Donate later</option>
+                </select>
+                </td>
             </tr>
             <tr id="damount">
-            <td>Donation amount</td>
-            <td><input type="text" class="demoInputBox"  name="d_amount" value="<?php if(isset($_POST['d_amount'])) { echo $_POST['d_amount'];} ?>" size ="30"></td>
+                <td>Donation amount</td>
+                <td>
+                    <input type="text" class="demoInputBox"  name="d_amount" 
+                           value="<?php if(isset($_POST['d_amount'])) { echo $_POST['d_amount'];} ?>" 
+                           size ="30">
+                </td>
             </tr>
             <tr>
             <td></td>
             <td>
             <input type="reset" value ="Clear">
-            <input type="submit" id="reg_btn" name="register-user" value="Register Now" class="btnRegister">
+            <input type="submit" id="reg_btn" name="register-user" value="Join Us" class="btnRegister">
             </td>
             </tr>
             <tr>
@@ -494,21 +587,21 @@ function user_interaction($type) {
             </tr>
             </table>
             </form>
-            <?php
+<?php
     }			
-    }
-    add_shortcode('u_interact', 'user_interaction');
+}
+add_shortcode('u_interact', 'user_interaction');
 
 
-    function donate_retreival($type) {
+function donate_retreival($type) {
 
-        debug_print("welcome to Donations retrieval");
+    debug_print("welcome to Donations retrieval");
 
-        $s_expression="";
-        $retrieve_now=FALSE;
-        $retrieve_donors=FALSE;
-        if ($_SERVER["REQUEST_METHOD"] != "POST") {
-            ?>   
+    $s_expression="";
+    $retrieve_now=FALSE;
+    $retrieve_donors=FALSE;
+    if ($_SERVER["REQUEST_METHOD"] != "POST") {
+?>   
 
                 <h2><strong>Get Donor Information</strong></h2> 
                 <form id="reg" name="Donor_info" method="post" action=""<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"">
@@ -544,72 +637,72 @@ function user_interaction($type) {
                 </table>
                 </form>
 
-                <?php
-        } else {
-            global $wpdb;
-            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-            $tb_donations = $wpdb->prefix.'gs_donations';
-            $tb_donors = $wpdb->prefix.'users';
-            $tb_donor_data = $wpdb->prefix.'usermeta';
+<?php
+    } else {
+        global $wpdb;
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        $tb_donations = $wpdb->prefix.'gs_donations';
+        $tb_donors = $wpdb->prefix.'users';
+        $tb_donor_data = $wpdb->prefix.'usermeta';
 
-            debug_print("data submitted ");
-            if(!empty($_POST["s_criteria"])) {
-                $s_criteria= test_input($_POST["s_criteria"]);
-                debug_print("search criteria =$s_criteria");
-                debug_print("search criteria =$s_criteria");
-
-
-                if($s_criteria == 'd_name'){
-                    /* lists all the donations with donor name */
-
-                    $donor_name = test_input($_POST["s_expression"]);
-                    debug_print("get donations with user name $donor_name");
-
-                    /* get donor id from donors table wp_users using donor_name */
-                    $g_udetails = "SELECT * FROM wp_users WHERE ";
-                    $donor_info = $wpdb->get_row($g_udetails."user_login LIKE '%$donor_name%'". " OR "." display_name LIKE '%$donor_name%'"); 
-                    if(!empty($donor_info)) {
-                        debug_print("$donor_info->user_login id = $donor_info->ID");
-                        $sql_q = "SELECT * FROM $tb_donations WHERE UID = $donor_info->ID";
-                        $retrieve_now=TRUE;
-                    } else {
-                        debug_print("please correct the user name not available");
-                        $retrieve_now=FALSE;                    
-                    }                
+        debug_print("data submitted ");
+        if(!empty($_POST["s_criteria"])) {
+            $s_criteria= test_input($_POST["s_criteria"]);
+            debug_print("search criteria =$s_criteria");
+            debug_print("search criteria =$s_criteria");
 
 
-                } else if($s_criteria == 'dates') {
-                    /* lists all the donations between two dates */
+            if($s_criteria == 'd_name'){
+                /* lists all the donations with donor name */
+
+                $donor_name = test_input($_POST["s_expression"]);
+                debug_print("get donations with user name $donor_name");
+
+                /* get donor id from donors table wp_users using donor_name */
+                $g_udetails = "SELECT * FROM wp_users WHERE ";
+                $donor_info = $wpdb->get_row($g_udetails."user_login LIKE '%$donor_name%'". " OR "." display_name LIKE '%$donor_name%'"); 
+                if(!empty($donor_info)) {
+                    debug_print("$donor_info->user_login id = $donor_info->ID");
+                    $sql_q = "SELECT * FROM $tb_donations WHERE UID = $donor_info->ID";
                     $retrieve_now=TRUE;
-                    $from_date = test_input($_POST["from_date"]);
-                    $to_date = test_input($_POST["to_date"]);
-                    debug_print("from $from_date to $to_date");
-                    $sql_q = "SELECT * FROM $tb_donations WHERE DDATE >= \"$from_date\" AND DDATE <= \"$to_date\"";
-
-                } else if($s_criteria == 'donor_all'){
-                    /* lists all the donors in database */
-                    $retrieve_now=FALSE;
-                    $retrieve_donors=TRUE;
-		    $addr = $_POST["u_addr"];
-                    $sql_q = "SELECT * FROM $tb_donors LEFT JOIN $tb_donor_data ON $tb_donors.ID = $tb_donor_data.user_id 
-		    		WHERE meta_key='ADDRESS' AND meta_value LIKE '%$addr%' ";
-                } else if($s_criteria == 'show_all') {
-                    /* lists all the donations in database */
-                    $retrieve_now=TRUE;
-                    $sql_q = "SELECT * FROM $tb_donations";
-
                 } else {
-                    echo "No Data";
-                }
-                /* Retrieve Donor Information*/
-                if($retrieve_donors) {
-                    $results = $wpdb->get_results($sql_q);
-                    if(!empty($results)) {
-                        //echo "<form>";
-                        echo " <p class = 'sucs_msg'>  </p>";
-                        echo "<table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
-                        echo "<tbody>";
-                        ?>
+                    debug_print("please correct the user name not available");
+                    $retrieve_now=FALSE;                    
+                }                
+
+
+            } else if($s_criteria == 'dates') {
+                /* lists all the donations between two dates */
+                $retrieve_now=TRUE;
+                $from_date = test_input($_POST["from_date"]);
+                $to_date = test_input($_POST["to_date"]);
+                debug_print("from $from_date to $to_date");
+                $sql_q = "SELECT * FROM $tb_donations WHERE DDATE >= \"$from_date\" AND DDATE <= \"$to_date\"";
+
+            } else if($s_criteria == 'donor_all'){
+                /* lists all the donors in database */
+                $retrieve_now=FALSE;
+                $retrieve_donors=TRUE;
+                $addr = $_POST["u_addr"];
+                $sql_q = "SELECT * FROM $tb_donors LEFT JOIN $tb_donor_data ON $tb_donors.ID = $tb_donor_data.user_id 
+                    WHERE meta_key='ADDRESS' AND meta_value LIKE '%$addr%' ";
+            } else if($s_criteria == 'show_all') {
+                /* lists all the donations in database */
+                $retrieve_now=TRUE;
+                $sql_q = "SELECT * FROM $tb_donations";
+
+            } else {
+                echo "No Data";
+            }
+            /* Retrieve Donor Information*/
+            if($retrieve_donors) {
+                $results = $wpdb->get_results($sql_q);
+                if(!empty($results)) {
+                    //echo "<form>";
+                    echo " <p class = 'sucs_msg'>  </p>";
+                    echo "<table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
+                    echo "<tbody>";
+?>
                             <tr>
                             <td>
                             <input type="checkbox" value ="<?php if(isset($_POST['select_all'])) { echo "ALL"; } else {echo "NONE";} ?>" 
@@ -618,194 +711,192 @@ function user_interaction($type) {
                             </input>
                             </td>
                             </tr>
-                            <?php
-                            echo "<tr>" ;				
-                        echo "<td><b>Select</b></td><td><b>DONOR ID</b></td>" ."<td><b>DONOR Name</b></td>"."<td><b>DONATIONS</b></td>" ;
-                        echo "</tr>" ;
-                        foreach($results as $row){                      
-                            echo "<tr>";                           // Adding rows of table inside foreach loop
-                            /* Pick a donor  */
-                            echo "<td>";
-                            ?>
+<?php
+                    echo "<tr>" ;				
+                    echo "<td><b>Select</b></td><td><b>DONOR ID</b></td>" ."<td><b>DONOR Name</b></td>"."<td><b>DONATIONS</b></td>" ;
+                    echo "</tr>" ;
+                    foreach($results as $row){                      
+                        echo "<tr>";                           // Adding rows of table inside foreach loop
+                        /* Pick a donor  */
+                        echo "<td>";
+?>
                                 <input type="checkbox" class="drow"  name=<?php echo $row->ID ?> value=<?php echo $row->ID ?> >
-                                <?php
-                                echo "</td>";
-                            /* Donor ID */
-                            echo "<td>";
-                            echo "$row->ID";
-                            echo "</td>";
-                            /* Donor name */
-                            echo "<td>";
-                            echo "$row->display_name";
-                            echo "</td>";
-                            /* Number of donations done  */
-                            echo "<td>";
-                            echo "n_donations";
-                            echo "</td>";
+<?php
+                        echo "</td>";
+                        /* Donor ID */
+                        echo "<td>";
+                        echo "$row->ID";
+                        echo "</td>";
+                        /* Donor name */
+                        echo "<td>";
+                        echo "$row->display_name";
+                        echo "</td>";
+                        /* Number of donations done  */
+                        echo "<td>";
+                        echo "n_donations";
+                        echo "</td>";
 
-                            echo "</tr>";
+                        echo "</tr>";
 
-                        }				
-                        ?>
+                    }				
+?>
                             <tr>
                             <td>
-                            <button id="p_button" > add donation </button>
+                            <button id="p_button_jx" > add donation </button>
                             </td>
                             <td>
                             Custom amount <input type="text" id="d_amount" value="1100" size ="10">
                             </td>
                             </tr>
-                            <?php
-                            echo "</tbody>";
-                        echo "</table>";
-                        //echo "</form>";
-                    } else {
-                        echo "<h2>No Donor Information</h2>";
-                    }
+<?php
+                    echo "</tbody>";
+                    echo "</table>";
+                    //echo "</form>";
+                } else {
+                    echo "<h2>No Donor Information</h2>";
                 }
-                /*retrieve Donoations data*/
-                if ($retrieve_now) {                 
+            }
+            /*retrieve Donoations data*/
+            if ($retrieve_now) {                 
 
-                    $gr_page = get_permalink( get_page_by_title( 'give_receipt' ) );
-                    $usr_page = get_permalink( get_page_by_title('edit_user'));
-                    debug_print("$usr_page");
-                    $c_page = get_permalink( get_page_by_title( 'contributions'));
-                    $results = $wpdb->get_results($sql_q);
-                    /* Number of rows per page */
-                    $nr_page = 5;
-                    $ocount = 0;
-                    $nrows = ceil(count($results)/$nr_page);
-                    debug_print("number of records $nrows"." $c_page"."$usr_page"); 
+                $gr_page = get_permalink( get_page_by_title( 'give_receipt' ) );
+                $usr_page = get_permalink( get_page_by_title('edit_user'));
+                debug_print("$usr_page");
+                $c_page = get_permalink( get_page_by_title( 'contributions'));
+                $results = $wpdb->get_results($sql_q);
+                /* Number of rows per page */
+                $nr_page = 5;
+                $ocount = 0;
+                $nrows = ceil(count($results)/$nr_page);
+                debug_print("number of records $nrows"." $c_page"."$usr_page"); 
 
-                    if(isset($_GET['p_indx']) && $_GET['p_indx'] != 0) {
-                        $offset = $nr_page * $_GET['p_indx'] - $nr_page;           
-                    } else if(!isset($_GET['p_indx'])) {
-                        $offset = 0;            
-                    }
+                if(isset($_GET['p_indx']) && $_GET['p_indx'] != 0) {
+                    $offset = $nr_page * $_GET['p_indx'] - $nr_page;           
+                } else if(!isset($_GET['p_indx'])) {
+                    $offset = 0;            
+                }
 
-                    /*if Pagination of record are supported*/
+                /*if Pagination of record are supported*/
                     /*if (count($results) < $nr_page) {
                       $results = $wpdb->get_results($sql_q);
                       } else {
                       $results = $wpdb->get_results($sql_q." LIMIT $offset, $nr_page");
-                      }*/
-                    $results = $wpdb->get_results($sql_q);
+                    }*/
+                $results = $wpdb->get_results($sql_q);
 
 
-                    if(!empty($results)) {
-                        echo "<table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
-                        echo "<thead>";
-                        ?>
-                            <button id="p_all_don" > print all </button>
-                            <?php
-                            echo "</thead>";
+                if(!empty($results)) {
+                    echo "<table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
+                    echo "<thead>";
+?>
+                            <button id="p_all_don_jx" > print all </button>
+<?php
+                    echo "</thead>";
 
-                        echo "<tbody>";     
-                        echo "<tr>" ;
-                        echo "<td><b>DID</b></td>" ."<td><b>DONOR Name</b></td>"."<td><b>DDATE</b></td>"."<td><b>PMODE</b></td>"."<td><b>STATUS</b></td>"."<td><b>AMNT</b></td>" ;
-                        echo "</tr>" ;
-                        foreach($results as $row){                      
-                            echo "<tr>";                           // Adding rows of table inside foreach loop
-                            ?>
-                                <div class="donations" value = "<?php echo $row->DID ?>">
-                                <td> 
-                                <a href="<?php echo $gr_page?>?donation_id=<?php echo $row->DID ?>"  id="donations_a_id">  
-                                <?php echo $row->DID ?> 
-                                </a>
-                                </td>
-                                </div>
+                    echo "<tbody>";     
+                    echo "<tr>" ;
+                    echo "<td><b>DID</b><input type='checkbox' id='select_all_jx'></td>" ;
+                    echo "<td><b>DONOR Name</b></td>"."<td><b>DDATE</b></td>"."<td><b>PMODE</b></td>"."<td><b>STATUS</b></td>"."<td><b>AMNT</b></td>" ;
+                    echo "</tr>" ;
+                    foreach($results as $row){                      
+                        echo "<tr>";                           // Adding rows of table inside foreach loop
+?>
+                        <div class="donations" value = "<?php echo $row->DID ?>">
+                        <td> 
+                        <!-- <a href="<?php echo $gr_page?>?donation_id=<?php echo $row->DID ?>"  id="donations_a_id">  -->
+                        <input type="checkbox" id="donation_sel" value="<?php echo $row->DID ?>" >  
+                        <?php echo $row->DID ?> 
+                        </td>
+                        </div>
 
-                                <?php                         
-                                $tusr = $wpdb->get_row("SELECT * FROM wp_users WHERE "." ID = $row->UID");                 
-                            ?>
+<?php                         
+                        $tusr = $wpdb->get_row("SELECT * FROM wp_users WHERE "." ID = $row->UID");                 
+?>
                                 <td>
                                 <a href="<?php echo $usr_page?>?d_id=<?php echo $row->UID ?>" > <?php echo $tusr->display_name ?> </a>                   
                                 </td>
-                                <?php                
+<?php                
 
-                                echo "<td>" . $row->DDATE . "</td>";                                            
-                            echo "<td>" . $row->PMODE . "</td>";
-                            if ($row->STATUS == "PENDING") {                                        
-                                ?>
+                        echo "<td>" . $row->DDATE . "</td>";                                            
+                        echo "<td>" . $row->PMODE . "</td>";
+                        if ($row->STATUS == "PENDING") {                                        
+?>
                                     <td>
                                     <a href="<?php echo $gr_page?>?PMODE=<?php echo $row->DID ?>" > <?php echo $row->STATUS ?> </a>
                                     </td>
-                                    <?php
-                            } else {
-                                echo "<td>" . $row->STATUS . "</td>";
-                            }
-                            echo "<td>" . $row->AMNT . "</td>";                                     
-                            echo "</tr>";
-                            ?>
-                                <?php
+<?php
+                        } else {
+                            echo "<td>" . $row->STATUS . "</td>";
                         }
-                        echo "</tbody>";
-                        echo "</table><br>"; 
-                        /*for($count = 1;$count<=$nrows; $count++) { */
-                        ?>
+                        echo "<td>" . $row->AMNT . "</td>";                                     
+                        echo "</tr>";
+?>
+<?php
+                    }
+                    echo "</tbody>";
+                    echo "</table><br>"; 
+                    /*for($count = 1;$count<=$nrows; $count++) { */
+?>
                             <!--   <a href="<?php echo $c_page?>?p_indx=<?php echo $count ?>" > <?php echo $count ?> </a> -->
-                            <?php  
-                            /*}*/
+<?php  
+                    /*}*/
 
-                    } else {
-                        echo "<h2> No records matching criteria </h2>";
-                    }   
-                }
-            } else {
-                $fname_error =" search expression empty";
-            }		
-        }    
-    }
-
-    add_shortcode('d_retreival', 'donate_retreival');
-
-    add_action('wp_ajax_my_action','ajx_add_donations');
-    add_action('wp_ajax_nopriv_my_action','ajx_dummy_donations');
-
-    function ajx_add_donations () {
-
-        global $wpdb;
-        if ($_REQUEST["operation"]== 'add_off_don') {
-            print_r($_REQUEST["donors"]);
-            $adv_don=json_decode(stripslashes($_REQUEST['donors']),true);
-            print_r($adv_don);
-
-            $dtype = 'OFFLINE';
-            $d_status = 'PENDING';
-            $ddate = current_time( 'mysql' );
-            foreach ( $adv_don['id'] as $did) {
-                $donation_e = array (
-                        'UID' => $did,
-                        'STATUS' => $d_status,
-                        'PMODE'  => $dtype,
-                        'AMNT'   => $adv_don['amnt'],
-                        'DDATE'  => $ddate
-                        );
-
-                $d_id = update_donation_entry($donation_e);
+                } else {
+                    echo "<h2> No records matching criteria </h2>";
+                }   
             }
-            echo json_encode("<h3> Thank you for Contribution <strong> donor id = ".$adv_don['id'][0]." amnt = ". $adv_don['amnt'] ." ndonations = ".count($adv_don['id'])."</strong></h3>");
-        } else if($_REQUEST["operation"] == 'print_receipts'){
-            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-            $tb_donations = $wpdb->prefix.'gs_donations';
+        } else {
+            $fname_error =" search expression empty";
+        }		
+    }    
+}
 
-            $g_udetails = "SELECT * FROM wp_users WHERE ";
-            //print_r($_REQUEST["donors"]);
-            $donor_ids = json_decode(stripslashes($_REQUEST['donors']),true);
-            //print_r($donor_ids[0]);
-            $dreceipt_arr = array();
-            //$sql = "SELECT * FROM $tb_donations WHERE DID = 1";
-            //$results = $wpdb->get_results($sql);
-            //print_r($results);
-            //exit();
-            foreach ($donor_ids as $did) {
-                $sql = "SELECT * FROM $tb_donations WHERE DID = $did";
-                $results = $wpdb->get_results($sql);
-                //print_r($results);
-                //exit();
-                if(!empty($results)) {
-                    foreach ($results as $drow) {
-                        $usrs = $wpdb->get_results($g_udetails."ID = $drow->UID");
+add_shortcode('d_retreival', 'donate_retreival');
+
+add_action('wp_ajax_my_action','ajx_add_donations');
+add_action('wp_ajax_nopriv_my_action','ajx_dummy_donations');
+
+/* local function Add advanced receipts to donations database */
+function handle_ajx_add_ar_db($adv_don) {
+    global $wpdb;
+    $dtype = 'OFFLINE';
+    $d_status = 'PENDING';
+    $ddate = current_time( 'mysql' );
+    foreach ( $adv_don['id'] as $did) {
+        $donation_e = array (
+            'UID' => $did,
+            'STATUS' => $d_status,
+            'PMODE'  => $dtype,
+            'AMNT'   => $adv_don['amnt'],
+            'DDATE'  => $ddate
+        );
+
+        $d_id = update_donation_entry($donation_e);
+    }
+    echo json_encode("<h3> Thank you for Contribution <strong> donor id = ".$adv_don['id'][0]." amnt = ". $adv_don['amnt'] ." ndonations = ".count($adv_don['id'])."</strong></h3>");
+
+}
+/* Handle donation details that are to be printed on receipt */
+function handle_ajx_get_don_receipt_data($donor_ids) {
+    global $wpdb;
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    $tb_donations  = $wpdb->prefix.'gs_donations';
+    $tb_donors     = $wpdb->prefix.'users';
+    $tb_donor_meta = $wpdb->prefix.'usermeta';
+    $dreceipt_arr = array();
+    
+    foreach ($donor_ids as $donation_id) {
+        /* Donation details */
+        $sql = "SELECT * FROM $tb_donations WHERE DID = $donation_id";
+        $donationv = $wpdb->get_results($sql);
+        /* Donor details */
+        $sql = "SELECT display_name FROM $tb_donors WHERE ID = ".$donationv[0]->UID;
+        $donorv = $wpdb->get_results($sql);
+        /* Get donor unique id ,meta*/
+        $sql = "SELECT meta_value from $tb_donor_meta WHERE meta_key = \"DONOR_ID\" AND user_id = ".$donationv[0]->UID;
+        $donorm = $wpdb->get_results($sql);
+
+        if(!empty($donationv) && !empty($donorv) && !empty($donorm)) {
                         /*
                            did = $row->DID
                            user name = $urow->display_name
@@ -815,37 +906,43 @@ function user_interaction($type) {
                            paid amount = $row->AMNT
 
                          */
-                        foreach ($usrs as $urow) {
-                            $tmp = array (
-                                    "did" => $drow->DID,
-                                    "uname" => $urow->display_name,
-                                    "ddate" => $drow->DDATE,
-                                    "pmode" => $drow->PMODE,
-                                    "pstat" => $drow->STATUS,
-                                    "pamnt" => $drow->AMNT
-                                    );
-                            array_push($dreceipt_arr,($tmp));
-                            //print_r($dreceipt_arr);
-                            //exit();
-                        }
-                    }
-                }
-            }
-            //print_r("not a valid operation ");
-            //echo json_encode("print all the donations in the page");
-            //print_r( json_encode(array (
-            //            "data" => $dreceipt_arr[0],
-            //            )));
-            //print_r($dreceipt_arr);
-            echo json_encode($dreceipt_arr,JSON_FORCE_OBJECT);
-            //give_receipt(1);
+                array_push($dreceipt_arr,array (
+                    "did"   => $donation_id,
+                    "uname" => $donorv[0]->display_name,
+                    "ddate" => $donationv[0]->DDATE,
+                    "pmode" => $donationv[0]->PMODE,
+                    "pstat" => $donationv[0]->STATUS,
+                    "pamnt" => $donationv[0]->AMNT,
+                    "dnr_id" => $donorm[0]->meta_value,
+
+                ));
+                //print_r($dreceipt_arr);
         }
-        wp_die();
     }
+        return $dreceipt_arr;
+}
 
+/* Ajax handler for logged in users*/
+function ajx_add_donations () {
 
-    function ajx_dummy_donations() {
-        echo "dummy function ";
+    global $wpdb;
+    if ($_REQUEST["operation"]== 'add_off_don') {
+        /* Handle adding advanced receipts in bulk to database*/
+        //print_r($_REQUEST["donors"]);
+        $adv_don=json_decode(stripslashes($_REQUEST['donors']),true);
+        //print_r($adv_don);
+        handle_ajx_add_ar_db($adv_don);
+    } else if($_REQUEST["operation"] == 'print_receipts'){
+        /* Handle print all donations inb the page */
+        $donor_ids = json_decode(stripslashes($_REQUEST['donors']),true);
+        echo json_encode(handle_ajx_get_don_receipt_data($donor_ids));
     }
+    wp_die();
+}
+
+/* Ajax handler for visitors(not logged-in users ) */
+function ajx_dummy_donations() {
+    echo "dummy function ";
+}
     ?>
 

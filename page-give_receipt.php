@@ -5,45 +5,125 @@ function handle_give_receipt($donation_id) {
 	/*$donation_id = $_REQUEST['donation_id'];*/
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     $tb_donations = $wpdb->prefix.'gs_donations';
-    $sql = "SELECT * FROM $tb_donations WHERE DID = $donation_id";
+    $tb_donors = $wpdb->prefix.'users';
+    $tb_donor_meta = $wpdb->prefix.'usermeta';
     $g_udetails = "SELECT * FROM wp_users WHERE ";
 
-    $results = $wpdb->get_results($sql);
-    
-		
-	
+    /* Donation details */
+    $sql = "SELECT * FROM $tb_donations WHERE DID = $donation_id";
+    $donationv = $wpdb->get_results($sql);
+    /* Donor details */
+    $sql = "SELECT display_name FROM $tb_donors WHERE ID = ".$donationv[0]->UID;
+    $donorv = $wpdb->get_results($sql); 
+    /* Get donor unique id ,meta*/
+    $sql = "SELECT meta_value from $tb_donor_meta WHERE meta_key = \"DONOR_ID\" AND user_id = ".$donationv[0]->UID;
+    $donorm = $wpdb->get_results($sql);
 
-    if(!empty($results)) {
-        echo "<br><table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
-        ?>
-		<thead>
-		<h2 style="text-align: center;" > Donation Receipt <h2>
-		</thead>
-		<?php
-		echo "<tbody>";     
-        
-        foreach($results as $row){ 
-            // Adding rows of table inside foreach loop
-            echo "<tr><td>Received By </td><td> Sri Samartha Naryana Gosala,Jiyaguda</td></tr>"; 
-            echo "<tr><td>Donation Id </td><td>" . $row->DID . "</td></tr>"; 
-            $tusr = $wpdb->get_results($g_udetails."ID = $row->UID"); 
-            foreach ($tusr as $urow) {
-                echo "<tr><td>Name </td><td>Shri " . $urow->display_name . "</td></tr>";
-            }                                               
-            echo "<tr><td>Date </td><td>" . $row->DDATE . "</td></tr>"; 
-            echo "<tr><td>Payment Mode </td><td>" . $row->PMODE . "</td></tr>"; 
-            echo "<tr><td>Payment status </td><td>" . $row->STATUS . "</td></tr>"; 
-            echo "<tr><td>Paid amount </td><td>" . $row->AMNT . "</td></tr>";                            
-            
-        }
-        echo "</tbody>";				
-        echo "</table>";
-			
-
+    if(!empty($donationv) && !empty($donorv) && !empty($donorm)) {
+        //printf("data retrieved ");
+        //print_r($donationv);
+        //print_r($donorv);
+        //print_r($donorm);
+?>
+        <div class="don_receipt dont_show">    
+        <table style="width:100%;" >
+            <thead>
+                <tr>
+                <th colspan="4">
+                <h4>JAYA JAYA RAGHUVEER SAMARTH</h4>
+                </th>
+                </tr>
+                <tr>
+                <th colspan="4">
+                <h2>SHRI SADGURU SAMARTH NARAYANA ASHRAM</h2>
+                </th>
+                </tr>
+                <tr>
+                <th colspan="4">
+                <h3>SHRI SAMRTHA KAMADHENU GOWSHALA</h3>
+                </th>
+                </tr>
+                <tr>
+                <th colspan="4">
+                <p style="margin: 0 2px2px 0 0;">(Regd. No. HRR-IV-00126-2010/11) </p>
+                </th>
+                </tr>
+                <tr>
+                <th colspan="4">
+                <p style="margin: 0 0 0 0;"> Opp. M.C.H. Colony,Shiv Bagh,Jiyaguda,Puranapul,Hyderabad - 5000 006 </p>
+                </th>
+                </tr>
+                <tr>
+                <th colspan="4">
+                <p style="margin: 0 0 0 0;"> Phone : 040-24825313 Cell: 9296358630, 9949121508 </p>
+                </th>
+                </tr>
+                <tr>
+                <th colspan="4">
+                <h4 style="margin: 0 0 0 3px"> "Shree Kamadhenu Prarabramhane Namaha"</h4>
+                </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        Received with thanks from Shri. <?php printf("<b>%s</b>",$donorv[0]->display_name); ?> 
+                    </td>
+                    <td >
+                        with ID 
+                        <?php printf("<b>%s</b>",$donorm[0]->meta_value); ?> 
+                    </td>
+                    <td colspan="2">
+                        on
+                        <?php printf("<b>%s</b>",$donationv[0]->DDATE);?>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <b> the sum of Rupees </b>
+                    </td>
+                    <td colspan="3"> 
+                        <?php printf("%s",$donationv[0]->AMNT);?>
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        <b> in the form of  </b>
+                    </td>
+                    <td colspan="3"> 
+                        <?php printf("%s",$donationv[0]->PMODE);?>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <b> being the seva for  </b>
+                    </td>
+                    <td colspan="3" style="text-align:left"> 
+                        <?php printf("Gow Seva");?>
+                    </td>
+                </tr>
+                <tr >
+                    <td rowspan="3" style="vertical-align: bottom;">
+                            <?php printf("Rs. %s",$donationv[0]->AMNT);?>
+                    </td>
+                    <td rowspan="3" style="vertical-align:bottom;text-align:left"> 
+                        <?php printf("<h4>JAI KAMADHENU</h4>");?>
+                    </td>
+                    <td rowspan="3" style="vertical-align: bottom;text-align:right"> 
+                        <?php printf("<b>Authorized Signatory</b>");?>
+                    </td>
+                </tr>
+              
+            </tbody>
+        </table>
+        </div> <!-- end div.don_receipt-->
+<?php
     } else {
-        echo "no data";
+        printf("No data retrieved ");
+        //print_r($donationv);
+        //print_r($donorv);
+        //print_r($donorm);
     }
-
 }
 
 function handle_pending_donation($donation_id) {	

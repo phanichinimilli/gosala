@@ -3,8 +3,8 @@
  * The template for displaying all single posts and attachments 
  * Template Name: default posts
  * @package WordPress
- * @subpackage Custom_theme
- * @since Custom_theme 1.0
+ * @subpackage Gosala 
+ * @since Gosala 1.0
  */
  get_header(); ?>
 
