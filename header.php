@@ -6,11 +6,9 @@
 <?php wp_head(); ?>
 </head>
 <div class="container">
-<div  class ="log_in_out" style="display: inline; float: right;padding: 10px 17px;">
-		<?php 
-		wp_loginout(); 
-		?>					
-		</div>
+<div class="log-inout" style="float: right;padding: 10px 17px;">
+		<?php wp_loginout(); ?>					
+</div>
 <body <?php body_class(); ?> >
 	<div class="site-header">
 		

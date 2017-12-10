@@ -56,7 +56,33 @@ function frame_receipt(value) {
     return content;
 }
 jQuery(document).ready(function() {
-    /*Ajax utility to handle print a single receipt */
+    
+    /* Ajax utility to handle donor search selection */
+    jQuery("#donor_srch_jx").change(function() {
+        console.log("selected "+this.value);
+        if(this.value == "donor_all") {
+            jQuery("#sexp").css('display','none');
+        } else {
+            jQuery("#sexp").css('display','table-row');
+        }
+    });
+    /* Ajax utility to handle donation search selection */
+    jQuery("#donation_srch_jx").change(function() {
+        console.log("selected "+this.value);
+        if(this.value == "show_all") {
+            jQuery("#sexp").css('display','none');
+            jQuery("#dates").css('display','none');
+        } else if(this.value == "d_name") {
+            jQuery("#sexp").css('display','table-row');
+            jQuery("#dates").css('display','none');
+        } else if(this.value == 'dates') {
+            console.log("datesss ");
+            jQuery("#sexp").css('display','none');
+            jQuery("#dates").css('display','table-row');
+        }
+    });
+    
+    /* Ajax utility to handle print a single receipt */
     jQuery("#select_all_jx").click(function () {
         console.log("selected checkall "+this.checked);
         if(this.checked) {

@@ -63,6 +63,44 @@ function new_excerpt_more($more) {
 add_filter('excerpt_more', 'new_excerpt_more');
 
 /* local functions */
+function get_donor_data($user_id,$key='DONOR_ID') {
+    global $wpdb;
+    $n_donations = 0;
+    $tb_donations = $wpdb->prefix."gs_donations";
+    $results = get_user_meta($user_id);
+    if(!empty($results)) {
+        switch($key) {
+        case 'DONOR_ID':
+            return $results[$key][0];
+        case 'ROLE':
+            return $results['wp_user_level'][0];
+        case 'NAME':
+            return $results['first_name'][0]." ".$results['last_name'][0];
+        case 'N_DONATIONS':
+            $n_donations = $wpdb->get_var("select COUNT(DID) FROM $tb_donations WHERE UID = $user_id");
+            return $n_donations;
+        default:
+            return $results[$key][0];
+        }
+    } else {
+        debug_print("<br> no user with such user id $user_id ");
+    }
+}
+function get_user_id($input) {
+    global $wpdb;
+    $tb_donors = $wpdb->prefix."users";
+    $tb_donor_data = $wpdb->prefix."usermeta";
+    $results = "";
+    
+    $sql_q = "SELECT user_id FROM $tb_donor_data WHERE meta_value = \"$input\" AND ( meta_key='first_name' OR meta_key='DONOR_ID' )";
+    debug_print("sql querry $sql_q");
+    $results = $wpdb->get_var($sql_q);
+    if(!empty($results)) {
+        return $results;
+    } else {
+        debug_print("<br> no user with such name $input <br> Checking if input is donor id");
+    }
+}
 function lookup_donor($d_uid) {
     global $wpdb;
     $tb_donors = $wpdb->prefix."users";
@@ -356,7 +394,6 @@ function user_interaction($type) {
                 $d_uid_error = "Please enter your username or mobile or gosala id";
             }
 
-            //if (validate_user_login($user_name,$pswd) == TRUE) {
             if (($uid = lookup_donor($d_uid)) != FALSE ) {
                 $add_donation = "TRUE";
                 if (!empty($_POST["don_type"])) {
@@ -446,7 +483,7 @@ function user_interaction($type) {
         ?> <!--  <script>window.location = "<?php echo home_url('/donate_redirect/');?>"</script> -->  <?php
     } else {
 ?>
-            
+
             <h2><strong>Donor Information</strong></h2>	
             <form id="reg" name="frmRegistration" method="post" action=""<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"">
             <table border="0" width="500" align="center" class="demo-table">
@@ -516,84 +553,83 @@ function user_interaction($type) {
                 <td>Gender</td>
                 <td>
                     <input type="radio" name="gender" 
-                           value="Male" <?php if(isset($_POST['gender']) && $_POST['gender']=="Male") 
-                            { ?>checked<?php  } ?>
-                    > Male
-                    <input type="radio" name="gender" 
-                           value="Female" <?php if(isset($_POST['gender']) && $_POST['gender']=="Female") 
-                            { ?>checked<?php  } ?>
-                    > Female
-                </td>
-            </tr>
-            <tr id="mob_num">
-                <td>Mobile Number</td>
-                <td>
-                    <input type="tel" class="demoInputBox" name="mob_num" 
-                           value="" placeholder="" size ="10" maxlength="10" 
-                    minlength="10">
-                </td>
-            </tr>
-            <tr id="u_dob">
-                <td>Date of Birth</td>
-                <td><input type="date" class="demoInputBox" name="u_dob" value="" ></td>
-            </tr>
-            <tr id="u_addr">
-                <td>Address</td>
-                <td>
-                    <textarea rows="4" cols="50" class="demoInputBox" name="u_addr" value="" 
-                        placeholder="Your address" >
-                    </textarea>
-                </td>
-            </tr>
-            <tr id="u_unique_id">
-                <td>Identification ID</td>
-                <td>
-                    <input type="number" class="demoInputBox" name="u_unique_id" placeholder="Aadhar card No" 
-                           size ="16">
-                </td>
-            </tr>
-            <tr>
-                <td><label for="donationtype">Donate as</label></td>
-                <td>							
-                <select id="donationtype" name="don_type" onchange="handle_donation(this.value)">
-                    <option value="OFFLINE">offline</option>
-                    <option value="CHEQUE">cheque</option>
-                    <option value="CASH">cash</option>
-                    <option value="ONLINE">online</option>						      
-                    <option value="NO_DONATION">Donate later</option>
-                </select>
-                </td>
-            </tr>
-            <tr id="damount">
-                <td>Donation amount</td>
-                <td>
-                    <input type="text" class="demoInputBox"  name="d_amount" 
-                           value="<?php if(isset($_POST['d_amount'])) { echo $_POST['d_amount'];} ?>" 
-                           size ="30">
-                </td>
-            </tr>
-            <tr>
-            <td></td>
-            <td>
-            <input type="reset" value ="Clear">
-            <input type="submit" id="reg_btn" name="register-user" value="Join Us" class="btnRegister">
-            </td>
-            </tr>
-            <tr>
-            <td></td>
-            <td>
+                    value="Male" <?php if(isset($_POST['gender']) && $_POST['gender']=="Male") 
+    { ?>checked<?php  } ?>
+    > Male
+    <input type="radio" name="gender" 
+    value="Female" <?php if(isset($_POST['gender']) && $_POST['gender']=="Female") 
+    { ?>checked<?php  } ?>
+    > Female
+    </td>
+    </tr>
+    <tr id="mob_num">
+    <td>Mobile Number</td>
+    <td>
+    <input type="tel" class="demoInputBox" name="mob_num" 
+    value="" placeholder="" size ="10" maxlength="10" 
+    minlength="10">
+    </td>
+    </tr>
+    <tr id="u_dob">
+    <td>Date of Birth</td>
+    <td><input type="date" class="demoInputBox" name="u_dob" value="" ></td>
+    </tr>
+    <tr id="u_addr">
+    <td>Address</td>
+    <td>
+    <textarea rows="4" cols="50" class="demoInputBox" name="u_addr" value="" 
+    placeholder="Your address" >
+    </textarea>
+    </td>
+    </tr>
+    <tr id="u_unique_id">
+    <td>Identification ID</td>
+    <td>
+    <input type="number" class="demoInputBox" name="u_unique_id" placeholder="Aadhar card No" 
+    size ="16">
+    </td>
+    </tr>
+    <tr>
+    <td><label for="donationtype">Donate as</label></td>
+    <td>							
+    <select id="donationtype" name="don_type" onchange="handle_donation(this.value)">
+    <option value="OFFLINE">offline</option>
+    <option value="CHEQUE">cheque</option>
+    <option value="CASH">cash</option>
+    <option value="ONLINE">online</option>						      
+    <option value="NO_DONATION">Donate later</option>
+    </select>
+    </td>
+    </tr>
+    <tr id="damount">
+    <td>Donation amount</td>
+    <td>
+    <input type="text" class="demoInputBox"  name="d_amount" 
+    value="<?php if(isset($_POST['d_amount'])) { echo $_POST['d_amount'];} ?>" 
+    size ="30">
+    </td>
+    </tr>
+    <tr>
+    <td></td>
+    <td>
+    <input type="reset" value ="Clear">
+    <input type="submit" id="reg_btn" name="register-user" value="Join Us" class="btnRegister">
+    </td>
+    </tr>
+    <tr>
+    <td></td>
+    <td>
 
-            </td>
-            </tr>
-            </table>
-            </form>
+    </td>
+    </tr>
+    </table>
+    </form>
 <?php
     }			
 }
 add_shortcode('u_interact', 'user_interaction');
 
-
-function donate_retreival($type) {
+function donor_retreival($type) {
 
     debug_print("welcome to Donations retrieval");
 
@@ -602,40 +638,37 @@ function donate_retreival($type) {
     $retrieve_donors=FALSE;
     if ($_SERVER["REQUEST_METHOD"] != "POST") {
 ?>   
+        <h2><strong>Get Donor Information</strong></h2> 
+        <form id="reg" name="Donor_info" method="post" action=""<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"">
+        <table border="0" width="500" align="center" class="demo-table" style="table-layout:fixed;">
+        <tbody>
 
-                <h2><strong>Get Donor Information</strong></h2> 
-                <form id="reg" name="Donor_info" method="post" action=""<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"">
-                <table border="0" width="500" align="center" class="demo-table">
-
-                <tr>
-                <td><label for="Search_on" > Select a value to <h2>search Donations</h2> </label></td>
-                <td>                            
-                <select id="Search_on" name="s_criteria" onchange="handle_search(this.value)">
-                <option value="show_all">ALL DONATIONS</option>                
-                <option value="d_name">Name</option>
-                <option value="dates">Dates</option>                         
+        <tr>
+            <td><label for="donor_srch_jx" > Select a value to <h2>Search Donors</h2> </label></td>
+            <td>                            
+                <select id="donor_srch_jx" name="s_criteria" >
                 <option value="donor_all">ALL DONORS</option>                	
+                <option value="d_info">Donor Info</option>
                 </select>
-                </td>
-                </tr>
-                <tr >
-                <td id="sexp_l" style="display: none">Search expression</td>
-                <td>                
-                <input id="sexp_t" style="display: none" type="text"  name="s_expression" placeholder="Enter now" size ="30" >
-                <input id="sexp_fd" style="display: none" type="date"  name="from_date" >
-                <input id="sexp_td" style="display: none" type="date"  name="to_date"  >
-                <input id="sexp_addr" style="display: none" type="text"  name="u_addr"  >
-                </td>
-                </tr>
+            </td>
+        </tr>
 
-                <tr>
-                <td></td>
-                <td>
+        <tr id="sexp" style="display:none">
+            <td>Search expression</td>
+            <td>                
+            <input id="sexp_t" type="text"  name="s_expression" placeholder=" name or address or donor id" >
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan=2 style="text-align:center">
                 <input type="submit" name="s_donor" value="Search" >
-                </td>
-                </tr>
-                </table>
-                </form>
+            </td>
+        </tr>
+
+        </tbody>
+        </table>
+        </form>
 
 <?php
     } else {
@@ -649,105 +682,97 @@ function donate_retreival($type) {
         if(!empty($_POST["s_criteria"])) {
             $s_criteria= test_input($_POST["s_criteria"]);
             debug_print("search criteria =$s_criteria");
-            debug_print("search criteria =$s_criteria");
 
 
-            if($s_criteria == 'd_name'){
+            if($s_criteria == 'd_info'){
                 /* lists all the donations with donor name */
 
                 $donor_name = test_input($_POST["s_expression"]);
-                debug_print("get donations with user name $donor_name");
+                debug_print("get donations with donor info:  $donor_name");
 
-                /* get donor id from donors table wp_users using donor_name */
-                $g_udetails = "SELECT * FROM wp_users WHERE ";
-                $donor_info = $wpdb->get_row($g_udetails."user_login LIKE '%$donor_name%'". " OR "." display_name LIKE '%$donor_name%'"); 
-                if(!empty($donor_info)) {
-                    debug_print("$donor_info->user_login id = $donor_info->ID");
-                    $sql_q = "SELECT * FROM $tb_donations WHERE UID = $donor_info->ID";
-                    $retrieve_now=TRUE;
+                if(!empty($donor_name)) {
+                    $sql_q = "SELECT * FROM $tb_donors LEFT JOIN $tb_donor_data ON $tb_donors.ID = $tb_donor_data.user_id WHERE ( meta_key='ADDRESS' AND meta_value LIKE '%$donor_name%' ) OR ( meta_key='first_name' AND meta_value LIKE '%$donor_name%' ) OR ( meta_key='DONOR_ID' AND meta_value LIKE '%$donor_name%' )";
+                    $retrieve_donors=TRUE;
                 } else {
                     debug_print("please correct the user name not available");
-                    $retrieve_now=FALSE;                    
+                    $retrieve_donors=FALSE;
                 }                
-
-
-            } else if($s_criteria == 'dates') {
-                /* lists all the donations between two dates */
-                $retrieve_now=TRUE;
-                $from_date = test_input($_POST["from_date"]);
-                $to_date = test_input($_POST["to_date"]);
-                debug_print("from $from_date to $to_date");
-                $sql_q = "SELECT * FROM $tb_donations WHERE DDATE >= \"$from_date\" AND DDATE <= \"$to_date\"";
 
             } else if($s_criteria == 'donor_all'){
                 /* lists all the donors in database */
                 $retrieve_now=FALSE;
                 $retrieve_donors=TRUE;
                 $addr = $_POST["u_addr"];
-                $sql_q = "SELECT * FROM $tb_donors LEFT JOIN $tb_donor_data ON $tb_donors.ID = $tb_donor_data.user_id 
-                    WHERE meta_key='ADDRESS' AND meta_value LIKE '%$addr%' ";
-            } else if($s_criteria == 'show_all') {
-                /* lists all the donations in database */
-                $retrieve_now=TRUE;
-                $sql_q = "SELECT * FROM $tb_donations";
-
+                $sql_q = "SELECT * FROM $tb_donors "; 
             } else {
                 echo "No Data";
             }
             /* Retrieve Donor Information*/
             if($retrieve_donors) {
+                debug_print(" querry : $sql_q ");
                 $results = $wpdb->get_results($sql_q);
                 if(!empty($results)) {
-                    //echo "<form>";
-                    echo " <p class = 'sucs_msg'>  </p>";
-                    echo "<table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
-                    echo "<tbody>";
 ?>
-                            <tr>
-                            <td>
-                            <input type="checkbox" value ="<?php if(isset($_POST['select_all'])) { echo "ALL"; } else {echo "NONE";} ?>" 
-                            id="select_all" name="select_all" onchange="handle_donor_selection(this)"> 
-                            ALL 
-                            </input>
-                            </td>
-                            </tr>
+                    <p class ="sucs_msg">  </p>
+
+                    <div class="no-printdonor" >
 <?php
-                    echo "<tr>" ;				
-                    echo "<td><b>Select</b></td><td><b>DONOR ID</b></td>" ."<td><b>DONOR Name</b></td>"."<td><b>DONATIONS</b></td>" ;
-                    echo "</tr>" ;
-                    foreach($results as $row){                      
+                    echo do_shortcode("[print_button]");
+?>
+                    <button id="p_button_jx" > add donation </button>
+                    <label> Custom amount </label> <input type="text" id="d_amount" value="1100" size ="10">
+                    </div> <!-- end no_print_donor-->
+
+                    <table width='100%' border='0'>
+                    <thead>
+                    <tr>
+                        <td>
+                        <input type="checkbox" value="<?php if(isset($_POST['select_all'])) { echo "ALL"; } else {                              echo "NONE";} ?>" 
+                        id="select_all" 
+                        name="select_all" 
+                        onchange="handle_donor_selection(this)" >
+                        ALL
+                        </input>
+                        </td>
+                        <td>ID</td>
+                        <td>Name</td>
+                        <td>Donations</td>
+                    </tr>
+                    </thead>
+<?php
+                    echo "<tbody>";
+                    foreach($results as $row){      
+                        $donor_role = get_donor_data($row->ID,'ROLE');
                         echo "<tr>";                           // Adding rows of table inside foreach loop
                         /* Pick a donor  */
                         echo "<td>";
 ?>
-                                <input type="checkbox" class="drow"  name=<?php echo $row->ID ?> value=<?php echo $row->ID ?> >
+                        <input type="checkbox" class="drow"  name=<?php echo $row->ID ?> value=<?php echo $row->ID ?> >
 <?php
                         echo "</td>";
                         /* Donor ID */
                         echo "<td>";
-                        echo "$row->ID";
+                        if ($donor_role != 0) {
+                            $donor_id = "ADMIN".$row->ID;
+                        } else {
+                            $donor_id = get_donor_data($row->ID,'DONOR_ID');
+                        }
+                        echo "$donor_id";
                         echo "</td>";
                         /* Donor name */
                         echo "<td>";
-                        echo "$row->display_name";
+                        $donor_name = get_donor_data($row->ID,'NAME');
+                        echo "$donor_name";
                         echo "</td>";
                         /* Number of donations done  */
                         echo "<td>";
-                        echo "n_donations";
+                        $n_donations = get_donor_data($row->ID,'N_DONATIONS');
+                        echo "$n_donations";
                         echo "</td>";
-
                         echo "</tr>";
 
                     }				
 ?>
-                            <tr>
-                            <td>
-                            <button id="p_button_jx" > add donation </button>
-                            </td>
-                            <td>
-                            Custom amount <input type="text" id="d_amount" value="1100" size ="10">
-                            </td>
-                            </tr>
 <?php
                     echo "</tbody>";
                     echo "</table>";
@@ -756,6 +781,116 @@ function donate_retreival($type) {
                     echo "<h2>No Donor Information</h2>";
                 }
             }
+
+        } else {
+            $fname_error =" search expression empty";
+        }		
+    }    
+}
+
+add_shortcode('donor_info', 'donor_retreival');
+
+
+function donation_retreival($type) {
+
+    debug_print("welcome to Donations retrieval");
+
+    $s_expression="";
+    $retrieve_now=FALSE;
+    $retrieve_donors=FALSE;
+    $user_id="";
+    if ($_SERVER["REQUEST_METHOD"] != "POST") {
+?>   
+        <h2><strong>Get Donation Information</strong></h2> 
+        <form id="reg" name="Donor_info" method="post" action=""<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"">
+        
+        <table border="0" width="500" align="center" class="demo-table" style="table-layout:fixed;" >
+        <tbody>
+        <tr>
+            <td><label for="donation_srch_jx" > Select a value to <h2>search Donations</h2> </label></td>
+            <td >                            
+                <select id="donation_srch_jx" name="s_criteria" >
+                    <option value="show_all">ALL DONATIONS</option>                
+                    <option value="d_name">Name</option>
+                    <option value="dates">Dates</option>                         
+                </select>
+            </td>
+        </tr>
+        
+        <tr id="sexp" style="display:none;">
+        <td>                
+        <b>value</b>
+        </td>
+        <td>                
+        <input id="sexp_t" type="text"  name="s_expression" placeholder="Donor Id or Name" size ="30">
+        </td>
+        </tr>
+        
+        <tr id="dates" style="display:none;">
+        <td>
+        <b>From </b> <input id="sexp_fd"  type="date"  name="from_date" >
+        </td>
+        <td>
+        <b>To </b> <input id="sexp_td"  type="date"  name="to_date"   >
+        </td>
+        </tr>
+
+        <tr>
+        <td style="text-align:center">
+        <input type="submit" name="s_donor" value="Search" >
+        </td>
+        </tr>
+        </tbody>
+        </table>
+        </form>
+<?php
+    } else {
+        global $wpdb;
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        $tb_donations = $wpdb->prefix.'gs_donations';
+        $tb_donors = $wpdb->prefix.'users';
+        $tb_donor_data = $wpdb->prefix.'usermeta';
+
+        debug_print("data submitted ");
+        if(!empty($_POST["s_criteria"])) {
+            $s_criteria= test_input($_POST["s_criteria"]);
+            
+            debug_print("search criteria =$s_criteria");
+
+            if($s_criteria == 'd_name'){
+                /* lists all the donations with donor name */
+
+                $donor_name = test_input($_POST["s_expression"]);
+                debug_print("get donations with user name $donor_name");
+                $user_id = get_user_id($donor_name);
+
+                /* get donor id from donors table wp_users using donor_name */
+                if(!empty($user_id)) {
+                    debug_print("user id $user_id");
+                    $sql_q = "SELECT * FROM $tb_donations WHERE UID = $user_id";
+                    $retrieve_now=TRUE;
+                } else {
+                    debug_print("please correct the user name not available");
+                    echo "Donor name <b> $donor_name </b> is not found in our database <br> Please correct it";
+                    $retrieve_now=FALSE;                    
+                }                
+
+            } else if($s_criteria == 'dates') {
+                /* lists all the donations between two dates */
+                $retrieve_now=TRUE;
+                $from_date = test_input($_POST["from_date"]);
+                $to_date = test_input($_POST["to_date"]);
+                debug_print("from $from_date to $to_date");
+                $sql_q = "SELECT * FROM $tb_donations WHERE DDATE >= \"$from_date\" AND DDATE <= \"$to_date\"";
+            } else if($s_criteria == 'show_all') {
+                /* lists all the donations in database */
+                $retrieve_now=TRUE;
+                $sql_q = "SELECT * FROM $tb_donations";
+
+            } else {
+                echo "No Data";
+            }
+
             /*retrieve Donoations data*/
             if ($retrieve_now) {                 
 
@@ -851,7 +986,7 @@ function donate_retreival($type) {
     }    
 }
 
-add_shortcode('d_retreival', 'donate_retreival');
+add_shortcode('donation_info', 'donation_retreival');
 
 add_action('wp_ajax_my_action','ajx_add_donations');
 add_action('wp_ajax_nopriv_my_action','ajx_dummy_donations');

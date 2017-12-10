@@ -28,12 +28,14 @@ Author URI: https://wordpress.org/
     margin:0;
     page-break-after: always;
 }
+
+.log-inout,
 .collumn.side,
 .print-link,
 .site-nav,
 .site-header,
 .site-footer,
-.log_in_out    
+.no-printdonor
 { 
 	display: none;
 }
