@@ -1,35 +1,17 @@
-<?php get_header(); ?>
+<?php
+/**
+ * Front to the WordPress application. This file doesn't do anything, but loads
+ * wp-blog-header.php which does and tells WordPress to load the theme.
+ *
+ * @package WordPress
+ */
 
-<div class="collumn main">
+/**
+ * Tells WordPress to load the WordPress theme and output it.
+ *
+ * @var bool
+ */
+define('WP_USE_THEMES', true);
 
-<?php 
-if(have_posts()) {
-	while(have_posts()) { 
-		the_post();	
-?>								
-				<div class="p_excerpt">
-					<?php 
-						the_title(); 
-						the_excerpt(); 
-
-					 ?>					
-				</div>				
-		   <br>		   
-		<?php 
-	}
-	echo paginate_links();	
-	
-}
-?>
-
-</div> <!-- end collumn main -->
-<div class="collumn side">
-<?php get_sidebar(); ?>
-</div>
-
-</div> <!-- end row -->
-</div> <!-- end content -->
-
-<?php get_footer(); ?>
-
-
+/** Loads the WordPress Environment and Template */
+require( dirname( __FILE__ ) . '/wp-blog-header.php' );
