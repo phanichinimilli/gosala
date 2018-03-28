@@ -23,9 +23,9 @@ if(have_posts()) {
 		/* populate meta data*/
 		//update_user_meta();
 		foreach ($user_metadata as $mkey => $mvalue) {
-        # code...
-        	update_user_meta($user_id,$mkey,$mvalue);
-    	}
+                	# code...
+        		update_user_meta($user_id,$mkey,$mvalue);
+    	        }
     	echo "<h2>Successfully updated </h2>";
 	} 
 	else 
@@ -61,7 +61,7 @@ if(have_posts()) {
 			            </td>
 		            </tr>
 		        <?php	         
-			        $key = 'f_name';
+			        $key = 'first_name';
 			        $ph = "";
 			        $value = get_user_meta($user_id,$key,true);
 			        if(empty($value)) {
@@ -79,7 +79,7 @@ if(have_posts()) {
 			            </td>
 		            </tr>
 		        <?php
-			        $key = 'l_name';
+			        $key = 'last_name';
 			        $ph = "";
 			        $value = get_user_meta($user_id,$key,true);
 			        if(empty($value)) {

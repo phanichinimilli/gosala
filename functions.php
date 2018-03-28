@@ -1,4 +1,4 @@
-<?php
+<?PHP
 $DEBUG_LOG = "FALSE";	
 $d_id = "";
 function debug_print($info) {
@@ -1040,12 +1040,18 @@ function handle_ajx_get_don_receipt_data($donor_ids) {
                            payment status = $row->STATUS
                            paid amount = $row->AMNT
 
-                         */
-                array_push($dreceipt_arr,array (
+			 */
+		$payment_mode = "";
+		if ($donationv[0]->PMODE != "OFFLINE") {
+			$payment_mode = $donationv[0]->PMODE;
+		} else {
+			$payment_mode = "ADVANCE";
+		}
+		array_push($dreceipt_arr,array (
                     "did"   => $donation_id,
                     "uname" => $donorv[0]->display_name,
                     "ddate" => $donationv[0]->DDATE,
-                    "pmode" => $donationv[0]->PMODE,
+                    "pmode" => $payment_mode,
                     "pstat" => $donationv[0]->STATUS,
                     "pamnt" => $donationv[0]->AMNT,
                     "dnr_id" => $donorm[0]->meta_value,
@@ -1054,13 +1060,14 @@ function handle_ajx_get_don_receipt_data($donor_ids) {
                 //print_r($dreceipt_arr);
         }
     }
-        return $dreceipt_arr;
+    return $dreceipt_arr;
 }
 
 /* Ajax handler for logged in users*/
 function ajx_add_donations () {
 
     global $wpdb;
+
     if ($_REQUEST["operation"]== 'add_off_don') {
         /* Handle adding advanced receipts in bulk to database*/
         //print_r($_REQUEST["donors"]);
