@@ -53,6 +53,7 @@ function frame_receipt(value) {
     content = content.concat("</tr>");
     content = content.concat("<tbody>");
     content = content.concat("</table>");
+    content = content.concat("</div>"); // start "receipt id"
     return content;
 }
 jQuery(document).ready(function() {
