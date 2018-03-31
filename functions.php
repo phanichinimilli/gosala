@@ -53,8 +53,31 @@ require_once( ABSPATH . 'wp-admin/includes/upgrade.php');
 dbDelta( $sql );         
 
 }
-
+add_action('after_setup_theme', 'remove_admin_bar');
+ 
+function remove_admin_bar() {
+if (!current_user_can('administrator') && !is_admin()) {
+  show_admin_bar(false);
+}
+}
 add_action('init','gosala_theme_setup');
+/* Re-direct setup*/
+function my_login_redirect( $redirect_to, $request, $user ) {
+    //is there a user to check?
+    if ( isset( $user->roles ) && is_array( $user->roles ) ) {
+        //check for admins
+        if ( in_array( 'administrator', $user->roles ) ) {
+            // redirect them to the default place
+            return $redirect_to;
+        } else {
+            return home_url();
+        }
+    } else {
+        return $redirect_to;
+    }
+}
+ 
+add_filter( 'login_redirect', 'my_login_redirect', 10, 3 );
 
 function new_excerpt_more($more) {
     global $post;
@@ -413,6 +436,9 @@ function user_interaction($type) {
             }
         }
 
+	/* using mobile number as both username and password */
+	$user_name = $pswd = $mobile;
+
         debug_print("usr ". $user_name."passwrd ". $pswd);
 
         if($update_donor == "TRUE") {
@@ -420,7 +446,7 @@ function user_interaction($type) {
             debug_print(" add new donor $fname "."$lname "."$pswd "."$email "."$gender ");
 
             $userdata = array(
-                'user_login'     => $mobile,
+                'user_login'     => $user_name,
                 'user_pass'      => $pswd,  // When creating an user, `user_pass` is expected.
                 'user_email'     => $email,
                 'role'           => 'subscriber',               
