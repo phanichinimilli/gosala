@@ -192,6 +192,39 @@ jQuery(document).ready(function() {
         });
 
     });
+    /* Ajax utilitiy to print current donor list */
+    jQuery("#print_button_jx").click ( function () {
+        console.log("print button got clicked");
+	    window.print();
+    });
+    /* Ajax utilitiy to delete selected donor list */
+    jQuery("#del_button_jx").click ( function () {
+        console.log("delete button got clicked");
+        var checkboxes = jQuery('.drow:checked');
+        var donor_ids = [];
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].type == 'checkbox' && checkboxes[i].checked == true && checkboxes[i].value) {
+                donor_ids.push(checkboxes[i].value);
+            }
+	}
+         console.log(JSON.stringify(donor_ids));
+        jQuery.ajax({
+            type:"POST",
+            //dataType : "json",
+            url: myAjax.ajaxurl,
+            data: { action : "my_action", 
+                "donors" :  JSON.stringify(donor_ids),
+                "operation" : "delete_donor",
+            },
+            success:function(response){
+                console.log("success "+ response );
+                jQuery(".sucs_msg").html("<h3>Donors deleted successfully</h3>");
+            },
+            error: function(response) {
+                console.log("error" + response);
+            },
+        });
+    });
     /* Ajax utilitiy to add advanced receipts */
     jQuery("#p_button_jx").click ( function () {
         console.log("button got clicked");
@@ -219,7 +252,7 @@ jQuery(document).ready(function() {
             },
             success:function(response){
                 console.log("success "+ response );
-                jQuery(".sucs_msg").append("<h3>Advanced receipts added successfully <br> please check donations page</h3>");
+                jQuery(".sucs_msg").html("<h3>Advanced receipts added successfully <br> please check donations page</h3>");
             },
             error: function(response) {
                 console.log("error" + response);

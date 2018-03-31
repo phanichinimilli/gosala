@@ -194,6 +194,12 @@ color: #FFF;*/
 background-color:var(--sub-color);
 text-decoration:none;
 }
+.no-printdonor {
+	display:inline-block;
+	float:left;
+	position:relative
+
+}
 /*.content g_excerpt {
 	display: inline;
 }

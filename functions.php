@@ -716,18 +716,22 @@ function donor_retreival($type) {
                     <p class ="sucs_msg">  </p>
 
                     <div class="no-printdonor" >
+		    <p>
+			<button id="print_button_jx" >print</button>
+			<button id="del_button_jx" >Delete</button>
+			<button id="p_button_jx" >Advance Receipt</button>
+		    	<label> Custom amount </label> <input type="text" id="d_amount" value="1100" size ="10">
+		    </p>
 <?php
-                    echo do_shortcode("[print_button]");
+                    //echo do_shortcode("[print_button]");
 ?>
-                    <button id="p_button_jx" > add donation </button>
-                    <label> Custom amount </label> <input type="text" id="d_amount" value="1100" size ="10">
                     </div> <!-- end no_print_donor-->
 
                     <table width='100%' border='0'>
                     <thead>
                     <tr>
                         <td>
-                        <input type="checkbox" value="<?php if(isset($_POST['select_all'])) { echo "ALL"; } else {                              echo "NONE";} ?>" 
+                        <input type="checkbox" value="<?php if(isset($_POST['select_all'])) { echo "ALL"; } else { echo "NONE";} ?>" 
                         id="select_all" 
                         name="select_all" 
                         onchange="handle_donor_selection(this)" >
@@ -1078,6 +1082,32 @@ function ajx_add_donations () {
         /* Handle print all donations inb the page */
         $donor_ids = json_decode(stripslashes($_REQUEST['donors']),true);
         echo json_encode(handle_ajx_get_don_receipt_data($donor_ids));
+    } else if($_REQUEST["operation"] == 'delete_donor'){
+        $del_donor_ids = json_decode(stripslashes($_REQUEST['donors']),true);
+	print_r($_REQUEST["donors"]);
+
+	$error_txt = "";
+	foreach ($del_donor_ids as $donor_id) {
+		$results = get_user_meta($donor_id);
+		if (!empty($results)) {
+			// Delete user's meta
+			foreach ($meta as $key => $val) {
+				delete_user_meta($donor_id, $key);
+			}
+			require_once(ABSPATH.'wp-admin/includes/user.php');
+			$tb_donations  = $wpdb->prefix.'gs_donations';
+			$sql_querry = "DELETE FROM $tb_donations WHERE UID = ".$donor_id;
+			$wpdb->get_results($sql_querry);
+			if(wp_delete_user($donor_id)) {
+				$error_txt = "success:: deleted donor id = $donor_id ".$results['first_name'][0]." ".$results['last_name'][0];
+			} else {
+				$error_txt = "error:: in donor deletion $donor_id";
+			}
+		} else {
+				$error_txt = "error:: in donor deletion $donor_id";
+		}
+		printf("$error_txt");
+	}
     }
     wp_die();
 }
