@@ -1,61 +1,65 @@
 function frame_receipt(value) {
     content = "";
-    content = content.concat("<div class='receipt' >"); // start "receipt id"
-    content = content.concat("<br><table width='100%' border='0'>");
+    content = content.concat("<p></p>");
+    content = content.concat("<div class='receipt'>"); // start "receipt id"
+    content = content.concat("<table width='100%' border='0'>");
     content = content.concat("<thead>");
     content = content.concat("<tr>");
     content = content.concat("<th colspan='4'>");
-    content = content.concat("<h4>JAYA JAYA RAGHUVEER SAMARTH</h4>");
+    content = content.concat("<p style='margin:0;padding:0;font-size:medium;'>JAYA JAYA RAGHUVEER SAMARTH</p>");
     content = content.concat("</th>");
     content = content.concat("</tr>");
     content = content.concat("<tr>");
     content = content.concat("<th colspan='4'>");
-    content = content.concat("<h2>SHRI SADGURU SAMARTH NARAYANA ASHRAM</h2>");
+    content = content.concat("<p style='margin:0;padding:0;font-size:x-large;'>SHRI SADGURU SAMARTH NARAYANA ASHRAM</p>");
     content = content.concat("</th>");
     content = content.concat("</tr>");
     content = content.concat("<tr>");
     content = content.concat("<th colspan='4'>");
-    content = content.concat("<h3>SHRI SAMRTHA KAMADHENU GOWSHALA</h3>");
+    content = content.concat("<p style='margin:0;padding:0;font-size:medium;'>SHRI SAMARTHA KAMADHENU GOWSHALA</p>");
     content = content.concat("</th>");
     content = content.concat("</tr>");
     content = content.concat("<tr>");
     content = content.concat("<th colspan='4'>");
-    content = content.concat("<p style='margin: 0 2px2px 0 0;'>\(Regd. No. HRR-IV-00126-2010/11\) </p>");
+    content = content.concat("<p style='margin: 0; font-size:small;'>\(Regd. No. HRR-IV-00126-2010/11\) </p>");
     content = content.concat("</th>");
     content = content.concat("</tr>");
     content = content.concat("<tr>");
     content = content.concat("<th colspan='4'>");
-    content = content.concat("<p style='margin: 0 0 0 0;'> Opp. M.C.H. Colony,Shiv Bagh,Jiyaguda,Puranapul,Hyderabad - 5000 006 </p>");
+    content = content.concat("<p style='margin:0 0 10px 0; border-bottom: 1px dashed black;font-size:small;'> Opp. M.C.H. Colony,Shiv Bagh,Jiyaguda,Puranapul,Hyderabad - 5000 006 </p>");
     content = content.concat("</th>");
     content = content.concat("</tr>");
-    content = content.concat("</thead>");
+    content = content.concat("</thead>`");
     content = content.concat("<tbody>");
     content = content.concat("<tr>");
-    content = content.concat("<td>Received with thanks from Shri. "+ value.uname +"</td>");
-    content = content.concat("<td>with ID "+ value.dnr_id +"</td>");
-    content = content.concat("<td colspan='2'>on "+ value.ddate + "</td>");
+    content = content.concat("<td>Received with thanks from Shri. <b>"+ value.uname +"</b></td>");
+    content = content.concat("<td>with ID <b>"+ value.dnr_id +"</b></td>");
+    content = content.concat("<td colspan='2'>on <b>"+ value.ddate + "</b></td>");
     content = content.concat("</tr>");
     content = content.concat("<tr>");
-    content = content.concat("<td><b> the sum of Rupees </b></td>");
-    content = content.concat("<td colspan='3'>"+value.pamnt +"</td>");
+    content = content.concat("<td> the sum of Rupees </td>");
+    content = content.concat("<td colspan='3'><b>"+value.pamnt +"</b></td>");
     content = content.concat("</tr>");
     content = content.concat("<tr>");
-    content = content.concat("<td><b> in the form of  </b></td>");
-    content = content.concat("<td colspan='3'>"+value.pmode+"</td>");
+    content = content.concat("<td> in the form of  </td>");
+    content = content.concat("<td colspan='3'><b>"+value.pmode+"</b></td>");
     content = content.concat("</tr>");
-    content = content.concat("<tr><td><b> being the seva for  </b></td>");
-    content = content.concat("<td colspan='3' style='text-align:left'>Gow Seva</td>");
+    content = content.concat("<tr><td> being the seva for  </td>");
+    content = content.concat("<td colspan='3' style='text-align:left'><b>Gow Seva</b></td>");
     content = content.concat("</tr>");
     content = content.concat("<tr>");
-    content = content.concat("<td rowspan='3' style='vertical-align:bottom;'>" + value.pamnt + "</td>");
-    content = content.concat("<td rowspan='3' style='vertical-align:bottom;text-align:left'><h4>JAI KAMADHENU</h4></td>");
+    content = content.concat("<td rowspan='3' style='vertical-align:bottom;'><b>SHREE RAMA</b></td>");
+    content = content.concat("<td rowspan='3' style='vertical-align:bottom;text-align:left'><b>JAI KAMADHENU</b></td>");
     content = content.concat("<td rowspan='3' style='vertical-align:bottom;text-align:right;'><b>Authorized Signatory</b></td>");
     content = content.concat("</tr>");
     content = content.concat("<tbody>");
     content = content.concat("</table>");
+    content = content.concat("<p></p>");
     content = content.concat("</div>"); // start "receipt id"
     return content;
 }
+
+
 jQuery(document).ready(function() {
     
     /* Ajax utility to handle donor search selection */
@@ -157,11 +161,29 @@ jQuery(document).ready(function() {
                 receipts = JSON.parse(response);
                 var content="";
 
-                jQuery.each(receipts, function (key,value) {
-                    console.log(frame_receipt(value));
-                    jQuery(parentobj).append(frame_receipt(value));
-                });
-                window.print();
+		    var mywindow = window.open('', 'PRINT', 'height=400,width=600');
+
+		    mywindow.document.write('<html><head>');
+		    mywindow.document.write('<style type="text/css"> @media print {');
+		    mywindow.document.write('div table thead th tr { font-weight : bold ; padding: 0; margin: 0;}');
+		    mywindow.document.write('.receipt {border-top: 3px solid black; border-bottom: 1px solid black;}');
+		    mywindow.document.write('.receipt:nth-of-type(3n) {page-break-before:auto; page-break-inside:avoid; page-break-after:always; }');
+		    mywindow.document.write('.receipt:last-of-type { page-break : avoid ; }');
+		    mywindow.document.write('} </style>');
+		    mywindow.document.write('</head><body>');
+
+
+		    jQuery.each(receipts, function (key,value) {
+			    console.log(frame_receipt(value));
+			    mywindow.document.write(frame_receipt(value));
+		    });
+		    mywindow.document.write('</body></html>');
+		    mywindow.document.close(); // necessary for IE >= 10
+		    mywindow.focus(); // necessary for IE >= 10*/
+
+		    mywindow.print();
+		    mywindow.close();
+		    jQuery(parentobj).append("<h3>successfully printed </h3>");
 
             },
             error: function(response) {
