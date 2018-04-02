@@ -524,6 +524,7 @@ function user_interaction($type) {
 
             <!-- <select id="donortype_jx" name="new_donor" onchange="display_apt_ele(this.value)"> -->
             <select id="donortype_jx" name="new_donor" >
+            <option value="None" selected>- None -</option>
             <option value="New">Register</option>
             <option value="Existing">Existing user</option>
             <!--
@@ -533,20 +534,20 @@ function user_interaction($type) {
             </td>
             </tr>
 
-            <tr id="fname">
+            <tr id="fname" style="display:none">
                 <td>First Name</td>
                 <td>
                     <input type="text" class="demoInputBox" name="firstName" 
                            value="<?php if(isset($_POST['firstName'])) echo $_POST['firstName']; ?>" 
-                           size ="30" > 
+                           size ="30" required > 
                 </td>
             </tr>
-            <tr id="lname">
+            <tr id="lname" style="display:none">
                 <td>Last Name</td>
                 <td>
                     <input type="text" class="demoInputBox" name="lastName" 
                            value="<?php if(isset($_POST['lastName'])) echo $_POST['lastName']; ?>" 
-                           size ="30"> 
+                           size ="30" required > 
                 </td>
             </tr>
             <tr id="d_uid" style="display:none">
@@ -555,11 +556,11 @@ function user_interaction($type) {
                     <input type="text" class="demoInputBox" name="donor_id" 
                            placeholder="Donor Id or mobile or email" 
                            value="<?php if(isset($_POST['donor_id'])) echo $_POST['donor_id']; ?>"
-                           size ="30"> 
+                           size ="30" > 
                 </td>
             </tr>
 
-            <tr id="email">
+            <tr id="email" style="display:none">
                 <td>Email</td>
                 <td>
                     <input type="email" class="demoInputBox" name="userEmail" 
@@ -570,88 +571,69 @@ function user_interaction($type) {
             </tr>					
             <?php if(!is_user_logged_in()) { ?>
             <!-- Displayed only for non-registered users -->
-            <tr id="password">
+            <tr id="password" style="display:none">
                 <td>Password</td>
                 <td><input type="password" class="demoInputBox" name="password" value="" size ="30"></td>
             </tr>
-            <tr id="cpassword">
+            <tr id="cpassword" style="display:none">
                 <td>Confirm Password</td>
                 <td><input type="password" class="demoInputBox" name="confirm_password" value="" size ="30"></td>
             </tr>
 <?php } ?>
-            <tr id="gender">
+            <tr id="gender" style="display:none">
                 <td>Gender</td>
                 <td>
                     <input type="radio" name="gender" 
-                    value="Male" <?php if(isset($_POST['gender']) && $_POST['gender']=="Male") 
-    { ?>checked<?php  } ?>
-    > Male
-    <input type="radio" name="gender" 
-    value="Female" <?php if(isset($_POST['gender']) && $_POST['gender']=="Female") 
-    { ?>checked<?php  } ?>
-    > Female
-    </td>
-    </tr>
-    <tr id="mob_num">
-    <td>Mobile Number</td>
-    <td>
-    <input type="tel" class="demoInputBox" name="mob_num" 
-    value="" placeholder="" size ="10" maxlength="10" 
-    minlength="10">
-    </td>
-    </tr>
-    <tr id="u_dob">
-    <td>Date of Birth</td>
-    <td><input type="date" class="demoInputBox" name="u_dob" value="" ></td>
-    </tr>
-    <tr id="u_addr">
-    <td>Address</td>
-    <td>
-    <textarea rows="4" cols="50" class="demoInputBox" name="u_addr" value="" 
-    placeholder="Your address" >
-    </textarea>
-    </td>
-    </tr>
-    <tr id="u_unique_id">
-    <td>Identification ID</td>
-    <td>
-    <input type="number" class="demoInputBox" name="u_unique_id" placeholder="Aadhar card No" 
-    size ="16">
-    </td>
-    </tr>
-    <tr>
-    <td><label for="donationtype">Donate as</label></td>
-    <td>							
-    <select id="donationtype" name="don_type" onchange="handle_donation(this.value)">
-    <option value="OFFLINE">offline</option>
-    <option value="CHEQUE">cheque</option>
-    <option value="CASH">cash</option>
-    <option value="ONLINE">online</option>						      
-    <option value="NO_DONATION">Donate later</option>
-    </select>
-    </td>
-    </tr>
-    <tr id="damount">
-    <td>Donation amount</td>
-    <td>
-    <input type="text" class="demoInputBox"  name="d_amount" 
-    value="<?php if(isset($_POST['d_amount'])) { echo $_POST['d_amount'];} ?>" 
-    size ="30">
-    </td>
-    </tr>
-    <tr>
-    <td></td>
-    <td>
-    <input type="reset" value ="Clear">
-    <input type="submit" id="reg_btn" name="register-user" value="Join Us" class="btnRegister">
-    </td>
-    </tr>
-    <tr>
-    <td></td>
-    <td>
+                    value="Male" <?php if(isset($_POST['gender']) && $_POST['gender']=="Male") { ?>checked<?php  } ?> > Male
+                
+		    <input type="radio" name="gender" value="Female" <?php if(isset($_POST['gender']) && $_POST['gender']=="Female") { ?>checked<?php  } ?> > Female
+                </td>
+            </tr>  
+            <tr id="mob_num" style="display:none">
+    		<td>Mobile Number</td>
+    		<td> <input type="tel" class="demoInputBox" name="mob_num" value="" placeholder="" size ="10" maxlength="10" minlength="10" required > </td>
+	    </tr>
+	    <tr id="u_dob" style="display:none">
+		<td>Date of Birth</td>
+		<td><input type="date" class="demoInputBox" name="u_dob" value="" required></td>
+	    </tr>
+	    <tr id="u_addr" style="display:none">
+		<td>Address</td>
+		<td> <textarea rows="4" cols="50" class="demoInputBox" name="u_addr" value="" placeholder="Your address" > </textarea> </td>
+	    </tr>
 
-    </td>
-    </tr>
+	    <tr id="u_unique_id" style="display:none">
+		<td>Identification ID</td>
+		<td> <input type="number" class="demoInputBox" name="u_unique_id" placeholder="Aadhar card No" size ="16" required>  </td>
+	    </tr>
+
+	    <tr id="u_dtype" style="display:none">
+		<td><label for="donationtype">Donate as</label></td>
+		<td>							
+		    <select id="donationtype" name="don_type" onchange="handle_donation(this.value)">
+			    <option value="OFFLINE">Advance</option>
+			    <option value="CHEQUE">cheque</option>
+			    <option value="CASH" selected>cash</option>
+			    <option value="ONLINE">online</option>						      
+			    <option value="NO_DONATION">Donate later</option>
+		    </select>
+	        </td>
+	    </tr>
+	    <tr id="damount" style="display:none">
+		<td>Donation amount</td>
+		<td> <input type="text" class="demoInputBox"  name="d_amount" value="<?php if(isset($_POST['d_amount'])) { echo $_POST['d_amount'];} ?>" size ="30"> </td>
+	    </tr>
+	    <tr id="u_buttons" style="display:none">
+	    <td></td>
+	    <td>
+		<input type="reset" value ="Clear">
+		<input type="submit" id="reg_btn" name="register-user" value="Join Us" class="btnRegister">
+	    </td>
+	    </tr>
+	    <tr>
+	    <td></td>
+	    <td></td>
+	    </tr>
     </table>
     </form>
 <?php

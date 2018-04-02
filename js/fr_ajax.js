@@ -99,40 +99,67 @@ jQuery(document).ready(function() {
         }
     });
     /*Ajax utility to Handle Front end layout changes of Donor registration*/
-    jQuery("#donortype_jx").change(function () {
-        console.log("selected "+this.value);
-        if( this.value == "Existing") {
-            /* for existing user*/
+	jQuery("#donortype_jx").change(function () {
+		console.log("selected "+this.value);
+		if( this.value == "Existing") {
+			/* for existing user*/
 
-            /* Not to be displayed */
-            jQuery("#u_addr").css('display','none');
-            jQuery("#fname").css('display','none');
-            jQuery("#lname").css('display','none');
-            jQuery("#email").css('display','none');
-            jQuery("#gender").css('display','none');
-            jQuery("#mob_num").css('display','none');
-            jQuery("#u_dob").css('display','none');
-            jQuery("#u_unique_id").css('display','none');
-            
-            /* To be displayed */
-            jQuery("#d_uid").css('display','table-row');
-            jQuery("#reg_btn").val('Donate');
-        } else {
-            /* Not to be displayed */
-            jQuery("#d_uid").css('display','none');
-            /* To be displayed */
-            jQuery("#u_addr").css('display','table-row');
-            jQuery("#fname").css('display','table-row');
-            jQuery("#lname").css('display','table-row');
-            jQuery("#email").css('display','table-row');
-            jQuery("#gender").css('display','table-row');
-            jQuery("#mob_num").css('display','table-row');
-            jQuery("#u_dob").css('display','table-row');
-            jQuery("#u_unique_id").css('display','table-row');
+			/* Not to be displayed */
+			jQuery("#u_addr").css('display','none');
+			jQuery("#fname").css('display','none');
+			jQuery("#lname").css('display','none');
+			jQuery("#email").css('display','none');
+			jQuery("#gender").css('display','none');
+			jQuery("#mob_num").css('display','none');
+			jQuery("#u_dob").css('display','none');
+			jQuery("#u_unique_id").css('display','none');
 
-            jQuery("#reg_btn").val('Join Us');
-        }
-    });
+			/* To be displayed */
+			jQuery("#d_uid").css('display','table-row');
+			jQuery("#d_uid").attr('required',true);
+			jQuery("#u_dtype").css('display','table-row');
+			jQuery("#u_dtype").css('display','table-row');
+			jQuery("#damount").css('display','table-row');
+			jQuery("#damount").val('CASH');
+			jQuery("#reg_btn").val('Donate');
+			jQuery("#u_buttons").css('display','table-row');
+		} else if (this.value == "New") {
+			/* Not to be displayed */
+			jQuery("#d_uid").attr('required',false);
+			jQuery("#d_uid").css('display','none');
+			/* To be displayed */
+			jQuery("#u_addr").css('display','table-row');
+			jQuery("#fname").css('display','table-row');
+			jQuery("#lname").css('display','table-row');
+			jQuery("#email").css('display','table-row');
+			jQuery("#gender").css('display','table-row');
+			jQuery("#mob_num").css('display','table-row');
+			jQuery("#u_dob").css('display','table-row');
+			jQuery("#u_unique_id").css('display','table-row');
+			jQuery("#u_dtype").css('display','table-row');
+			jQuery("#damount").css('display','table-row');
+			jQuery("#damount").val('CASH');
+			jQuery("#reg_btn").val('Join Us');
+			jQuery("#u_buttons").css('display','table-row');
+		} else {
+			/* Not to be displayed */
+			jQuery("#u_addr").css('display','none');
+			jQuery("#fname").css('display','none');
+			jQuery("#lname").css('display','none');
+			jQuery("#email").css('display','none');
+			jQuery("#gender").css('display','none');
+			jQuery("#mob_num").css('display','none');
+			jQuery("#u_dob").css('display','none');
+			jQuery("#d_uid").attr('required',false);
+			jQuery("#u_unique_id").css('display','none');
+			jQuery("#d_uid").css('display','none');
+			jQuery("#u_dtype").css('display','none');
+			jQuery("#damount").css('display','none');
+			jQuery("#damount").val('CASH');
+			jQuery("#u_buttons").css('display','none');
+
+		}
+	});
     /*end */
 
     /*Ajax utility to print single donations receipts*/
