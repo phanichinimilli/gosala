@@ -222,7 +222,7 @@ if(have_posts()) {
 				
 		if(isset($_REQUEST['donation_id'])){
 			handle_give_receipt($_REQUEST['donation_id']);
-			echo do_shortcode("[print_button]");
+			//echo do_shortcode("[print_button]");
 		} else if(isset($_REQUEST['PMODE'])){
 			handle_pending_donation($_REQUEST['PMODE']);
 		} else {

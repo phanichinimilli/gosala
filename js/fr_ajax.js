@@ -135,6 +135,58 @@ jQuery(document).ready(function() {
     });
     /*end */
 
+    /*Ajax utility to print single donations receipts*/
+    jQuery("#prnt_sngl_rcpt").click ( function () {
+        var donor_arr = [];
+        var donation_ids = [];
+        donation_ids.push(jQuery(this).val());
+        console.log(donation_ids);
+        parentobj = jQuery(this).parent().parent();
+        jQuery(this).parent().remove();
+        jQuery.ajax({
+           type:"POST",
+           //dataType : "json",
+           url: myAjax.ajaxurl,
+           data: { action : "my_action", 
+               "donors" :  JSON.stringify(donation_ids),
+               "operation" : "print_receipts",
+           },
+           success:function(response){
+               console.log("success "+ response);
+               receipts = JSON.parse(response);
+               var content="";
+
+	         var mywindow = window.open('', 'PRINT', 'height=400,width=600');
+
+	         mywindow.document.write('<html><head>');
+	         mywindow.document.write('<style type="text/css"> @media print {');
+	         mywindow.document.write('div table thead th tr { font-weight : bold ; padding: 0; margin: 0;}');
+	         mywindow.document.write('.receipt {border-top: 3px solid black; border-bottom: 1px solid black;}');
+	         mywindow.document.write('.receipt:nth-of-type(3n) {page-break-before:auto; page-break-inside:avoid; page-break-after:always; }');
+	         mywindow.document.write('.receipt:last-of-type { page-break : avoid ; }');
+	         mywindow.document.write('} </style>');
+	         mywindow.document.write('</head><body>');
+
+
+	         jQuery.each(receipts, function (key,value) {
+	     	    console.log(frame_receipt(value));
+	     	    mywindow.document.write(frame_receipt(value));
+	         });
+	         mywindow.document.write('</body></html>');
+	         mywindow.document.close(); // necessary for IE >= 10
+	         mywindow.focus(); // necessary for IE >= 10*/
+
+	         mywindow.print();
+	         mywindow.close();
+	         jQuery(parentobj).append("<h3>successfully printed </h3>");
+
+           },
+           error: function(response) {
+               console.log("error" + response);
+           },
+	});
+
+    });
 
     /*Ajax utility to print all the donations receipts*/
     jQuery("#p_all_don_jx").click ( function () {

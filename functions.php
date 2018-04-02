@@ -502,7 +502,11 @@ function user_interaction($type) {
             echo "<h3> Thank you for Contribution <strong>$amount</strong></h3>";
 
 ?>
-                <a href="<?php echo $gr_page ?>?donation_id=<?php echo $d_id ?>" > <button type="button">Get Receipt</button> </a>
+
+	<button id="prnt_sngl_rcpt" value="<?php echo $d_id?>"> Get Receipt </button>
+            <!--
+            <a href="<?php echo $gr_page ?>?donation_id=<?php echo $d_id ?>" > <button type="button">Get Receipt</button> </a>
+            -->
 <?php
 
         } /*end $add_donation == "TRUE"*/
