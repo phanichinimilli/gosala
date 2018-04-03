@@ -4,47 +4,48 @@
   + 'onClick="javascript:window.print()"></form>');
  }*/
 
+
 function display_apt_ele(val) {
 /*alert("The input value has changed. The new value is: " + val);*/
-
-	if(val == "New")	{
-		document.getElementById('uname').style.display='none';
-		document.getElementById('fname').style.display='table-row';	
-		document.getElementById('lname').style.display='table-row';
-		document.getElementById('email').style.display='table-row';
-		document.getElementById('gender').style.display='table-row';
-		document.getElementById('password').style.display='table-row';
-		document.getElementById('cpassword').style.display='table-row';
-		document.getElementById('reg_btn').value = 'Register Now';
-		document.getElementById('mob_num').style.display='table-row';
-		document.getElementById('u_dob').style.display='table-row';
-		document.getElementById('u_unique_id').style.display='table-row';
-	} else if (val == "Existing") {
-		document.getElementById('uname').style.display='table-row';
-		document.getElementById('fname').style.display='none';	
-		document.getElementById('lname').style.display='none';
-		document.getElementById('email').style.display='none';
-		document.getElementById('gender').style.display='none';		
-		document.getElementById('password').style.display='table-row';
-		document.getElementById('cpassword').style.display='none';
-		document.getElementById('reg_btn').value = 'Donate Now';
-		document.getElementById('mob_num').style.display='none';
-		document.getElementById('u_dob').style.display='none';
-		document.getElementById('u_unique_id').style.display='none';
-		
-	} else if (val == "Anonymous") {
-		document.getElementById('fname').style.display='table-row';	
-		document.getElementById('lname').style.display='table-row';
-		document.getElementById('gender').style.display='table-row';
-		document.getElementById('uname').style.display='none';
-		document.getElementById('email').style.display='none';
-		document.getElementById('password').style.display='none';
-		document.getElementById('cpassword').style.display='none';
-		document.getElementById('reg_btn').value = 'Donate Now';
-		document.getElementById('mob_num').style.display='none';
-		document.getElementById('u_dob').style.display='none';
-		document.getElementById('u_unique_id').style.display='none';
-	}
+//
+//	if(val == "New")	{
+//		document.getElementById('uname').style.display='none';
+//		document.getElementById('fname').style.display='table-row';	
+//		document.getElementById('lname').style.display='table-row';
+//		document.getElementById('email').style.display='table-row';
+//		document.getElementById('gender').style.display='table-row';
+//		document.getElementById('password').style.display='table-row';
+//		document.getElementById('cpassword').style.display='table-row';
+//		document.getElementById('reg_btn').value = 'Register Now';
+//		document.getElementById('mob_num').style.display='table-row';
+//		document.getElementById('u_dob').style.display='table-row';
+//		document.getElementById('u_unique_id').style.display='table-row';
+//	} else if (val == "Existing") {
+//		document.getElementById('uname').style.display='table-row';
+//		document.getElementById('fname').style.display='none';	
+//		document.getElementById('lname').style.display='none';
+//		document.getElementById('email').style.display='none';
+//		document.getElementById('gender').style.display='none';		
+//		document.getElementById('password').style.display='table-row';
+//		document.getElementById('cpassword').style.display='none';
+//		document.getElementById('reg_btn').value = 'Donate Now';
+//		document.getElementById('mob_num').style.display='none';
+//		document.getElementById('u_dob').style.display='none';
+//		document.getElementById('u_unique_id').style.display='none';
+//		
+//	} else if (val == "Anonymous") {
+//		document.getElementById('fname').style.display='table-row';	
+//		document.getElementById('lname').style.display='table-row';
+//		document.getElementById('gender').style.display='table-row';
+//		document.getElementById('uname').style.display='none';
+//		document.getElementById('email').style.display='none';
+//		document.getElementById('password').style.display='none';
+//		document.getElementById('cpassword').style.display='none';
+//		document.getElementById('reg_btn').value = 'Donate Now';
+//		document.getElementById('mob_num').style.display='none';
+//		document.getElementById('u_dob').style.display='none';
+//		document.getElementById('u_unique_id').style.display='none';
+//	}
 
 }
 

@@ -37,28 +37,76 @@ function frame_receipt(value) {
     content = content.concat("<td colspan='2'>on <b>"+ value.ddate + "</b></td>");
     content = content.concat("</tr>");
     content = content.concat("<tr>");
-    content = content.concat("<td> the sum of Rupees </td>");
+    content = content.concat("<td> the sum of Rupees :: </td>");
     content = content.concat("<td colspan='3'><b>"+value.pamnt +"</b></td>");
     content = content.concat("</tr>");
     content = content.concat("<tr>");
-    content = content.concat("<td> in the form of  </td>");
+    content = content.concat("<td> in the form of    :: </td>");
     content = content.concat("<td colspan='3'><b>"+value.pmode+"</b></td>");
     content = content.concat("</tr>");
-    content = content.concat("<tr><td> being the seva for  </td>");
+    content = content.concat("<tr><td> being the seva for :: </td>");
     content = content.concat("<td colspan='3' style='text-align:left'><b>Gow Seva</b></td>");
     content = content.concat("</tr>");
     content = content.concat("<tr>");
-    content = content.concat("<td rowspan='3' style='vertical-align:bottom;'><b>SHREE RAMA</b></td>");
-    content = content.concat("<td rowspan='3' style='vertical-align:bottom;text-align:left'><b>JAI KAMADHENU</b></td>");
-    content = content.concat("<td rowspan='3' style='vertical-align:bottom;text-align:right;'><b>Authorized Signatory</b></td>");
+    content = content.concat("<td rowspan='3' style='vertical-align:bottom; text-decoration: underline;'><b>SHREE RAMA</b></td>");
+    content = content.concat("<td rowspan='3' style='vertical-align:bottom;text-align:left; text-decoration: underline;'><b>JAI KAMADHENU</b></td>");
+    content = content.concat("<td rowspan='3' style='vertical-align:bottom;text-align:right; text-decoration: underline;'><b>Authorized Signatory</b></td>");
     content = content.concat("</tr>");
     content = content.concat("<tbody>");
     content = content.concat("</table>");
+    content = content.concat("<p></p>");
     content = content.concat("<p></p>");
     content = content.concat("</div>"); // start "receipt id"
     return content;
 }
 
+function print_n_receipts(donation_ids) {
+	parentobj = jQuery(this).parent().parent();
+	jQuery(this).parent().remove();
+	jQuery.ajax({
+		type:"POST",
+		//dataType : "json",
+		url: myAjax.ajaxurl,
+		data: { action : "my_action", 
+			"donors" :  JSON.stringify(donation_ids),
+			"operation" : "print_receipts",
+		},
+		success:function(response){
+			console.log("success "+ response);
+			receipts = JSON.parse(response);
+			var content="";
+
+			var mywindow = window.open('', 'PRINT', 'height=400,width=600');
+
+			mywindow.document.write('<html><head>');
+			mywindow.document.write('<style type="text/css"> @media print {');
+			mywindow.document.write('div table thead th tr { font-weight : bold ; padding: 0; margin: 0;}');
+			mywindow.document.write('.receipt {border-top: 3px solid black; border-bottom: 1px solid black;}');
+			mywindow.document.write('.receipt:nth-of-type(3n) {page-break-before:auto; page-break-inside:avoid; page-break-after:always; }');
+			mywindow.document.write('.receipt:last-of-type { page-break : avoid ; }');
+			mywindow.document.write('} </style>');
+			mywindow.document.write('</head><body>');
+
+
+			jQuery.each(receipts, function (key,value) {
+				console.log(frame_receipt(value));
+				mywindow.document.write(frame_receipt(value));
+			});
+			mywindow.document.write('</body></html>');
+			mywindow.document.close(); // necessary for IE >= 10
+			mywindow.focus(); // necessary for IE >= 10*/
+
+			mywindow.print();
+			mywindow.close();
+			jQuery(parentobj).append("<h3>successfully printed </h3>");
+
+		},
+		error: function(response) {
+			console.log("error" + response);
+		},
+	});
+
+}
 
 jQuery(document).ready(function() {
     
@@ -103,7 +151,15 @@ jQuery(document).ready(function() {
 		console.log("selected "+this.value);
 		if( this.value == "Existing") {
 			/* for existing user*/
-
+			
+			/* required and option feilds */
+			jQuery("#donor_id").attr('required',true);
+			jQuery("#firstName").attr('required',false);
+			jQuery("#lastName").attr('required',false);
+			jQuery("#mob_num_id").attr('required',false);
+			jQuery("#u_dob_id").attr('required',false);
+			jQuery("#u_unique_id").attr('required',false);
+			
 			/* Not to be displayed */
 			jQuery("#u_addr").css('display','none');
 			jQuery("#fname").css('display','none');
@@ -112,52 +168,70 @@ jQuery(document).ready(function() {
 			jQuery("#gender").css('display','none');
 			jQuery("#mob_num").css('display','none');
 			jQuery("#u_dob").css('display','none');
-			jQuery("#u_unique_id").css('display','none');
+			jQuery("#u_unique").css('display','none');
 
+			
 			/* To be displayed */
 			jQuery("#d_uid").css('display','table-row');
-			jQuery("#d_uid").attr('required',true);
-			jQuery("#u_dtype").css('display','table-row');
 			jQuery("#u_dtype").css('display','table-row');
 			jQuery("#damount").css('display','table-row');
-			jQuery("#damount").val('CASH');
+			jQuery("#don_type_id").val('CASH');
 			jQuery("#reg_btn").val('Donate');
 			jQuery("#u_buttons").css('display','table-row');
+			
 		} else if (this.value == "New") {
+			
+			/* required and option feilds */
+			jQuery("#donor_id").attr('required',false);
+			jQuery("#firstName").attr('required',true);
+			jQuery("#lastName").attr('required',true);
+			jQuery("#mob_num_id").attr('required',true);
+			jQuery("#u_dob_id").attr('required',true);
+			jQuery("#u_unique_id").attr('required',true);
+			
 			/* Not to be displayed */
-			jQuery("#d_uid").attr('required',false);
 			jQuery("#d_uid").css('display','none');
 			/* To be displayed */
-			jQuery("#u_addr").css('display','table-row');
 			jQuery("#fname").css('display','table-row');
 			jQuery("#lname").css('display','table-row');
 			jQuery("#email").css('display','table-row');
 			jQuery("#gender").css('display','table-row');
 			jQuery("#mob_num").css('display','table-row');
 			jQuery("#u_dob").css('display','table-row');
-			jQuery("#u_unique_id").css('display','table-row');
+			jQuery("#u_addr").css('display','table-row');
+			jQuery("#u_unique").css('display','table-row');
 			jQuery("#u_dtype").css('display','table-row');
 			jQuery("#damount").css('display','table-row');
-			jQuery("#damount").val('CASH');
-			jQuery("#reg_btn").val('Join Us');
 			jQuery("#u_buttons").css('display','table-row');
+			
+			//jQuery("#don_type_id").val('CASH');
+			jQuery("#reg_btn").val('Join Us');
+			
 		} else {
+			/* required and option feilds */
+			jQuery("#donor_id").attr('required',false);
+			jQuery("#firstName").attr('required',false);
+			jQuery("#lastName").attr('required',false);
+			jQuery("#mob_num_id").attr('required',false);
+			jQuery("#u_dob_id").attr('required',false);
+			jQuery("#u_unique_id").attr('required',false);
+		
 			/* Not to be displayed */
-			jQuery("#u_addr").css('display','none');
 			jQuery("#fname").css('display','none');
 			jQuery("#lname").css('display','none');
 			jQuery("#email").css('display','none');
 			jQuery("#gender").css('display','none');
 			jQuery("#mob_num").css('display','none');
 			jQuery("#u_dob").css('display','none');
+			jQuery("#u_addr").css('display','none');
 			jQuery("#d_uid").attr('required',false);
-			jQuery("#u_unique_id").css('display','none');
+			jQuery("#u_unique").css('display','none');
 			jQuery("#d_uid").css('display','none');
 			jQuery("#u_dtype").css('display','none');
 			jQuery("#damount").css('display','none');
-			jQuery("#damount").val('CASH');
+			jQuery("#don_type_id").val('CASH');
 			jQuery("#u_buttons").css('display','none');
-
+			
 		}
 	});
     /*end */
@@ -168,51 +242,7 @@ jQuery(document).ready(function() {
         var donation_ids = [];
         donation_ids.push(jQuery(this).val());
         console.log(donation_ids);
-        parentobj = jQuery(this).parent().parent();
-        jQuery(this).parent().remove();
-        jQuery.ajax({
-           type:"POST",
-           //dataType : "json",
-           url: myAjax.ajaxurl,
-           data: { action : "my_action", 
-               "donors" :  JSON.stringify(donation_ids),
-               "operation" : "print_receipts",
-           },
-           success:function(response){
-               console.log("success "+ response);
-               receipts = JSON.parse(response);
-               var content="";
-
-	         var mywindow = window.open('', 'PRINT', 'height=400,width=600');
-
-	         mywindow.document.write('<html><head>');
-	         mywindow.document.write('<style type="text/css"> @media print {');
-	         mywindow.document.write('div table thead th tr { font-weight : bold ; padding: 0; margin: 0;}');
-	         mywindow.document.write('.receipt {border-top: 3px solid black; border-bottom: 1px solid black;}');
-	         mywindow.document.write('.receipt:nth-of-type(3n) {page-break-before:auto; page-break-inside:avoid; page-break-after:always; }');
-	         mywindow.document.write('.receipt:last-of-type { page-break : avoid ; }');
-	         mywindow.document.write('} </style>');
-	         mywindow.document.write('</head><body>');
-
-
-	         jQuery.each(receipts, function (key,value) {
-	     	    console.log(frame_receipt(value));
-	     	    mywindow.document.write(frame_receipt(value));
-	         });
-	         mywindow.document.write('</body></html>');
-	         mywindow.document.close(); // necessary for IE >= 10
-	         mywindow.focus(); // necessary for IE >= 10*/
-
-	         mywindow.print();
-	         mywindow.close();
-	         jQuery(parentobj).append("<h3>successfully printed </h3>");
-
-           },
-           error: function(response) {
-               console.log("error" + response);
-           },
-	});
-
+        print_n_receipts(donation_ids);
     });
 
     /*Ajax utility to print all the donations receipts*/
@@ -225,51 +255,8 @@ jQuery(document).ready(function() {
             }
         });
         console.log(donation_ids);
-        parentobj = jQuery(this).parent().parent();
-        jQuery(this).parent().remove();
-        jQuery.ajax({
-            type:"POST",
-            //dataType : "json",
-            url: myAjax.ajaxurl,
-            data: { action : "my_action", 
-                "donors" :  JSON.stringify(donation_ids),
-                "operation" : "print_receipts",
-            },
-            success:function(response){
-                console.log("success "+ response);
-                receipts = JSON.parse(response);
-                var content="";
-
-		    var mywindow = window.open('', 'PRINT', 'height=400,width=600');
-
-		    mywindow.document.write('<html><head>');
-		    mywindow.document.write('<style type="text/css"> @media print {');
-		    mywindow.document.write('div table thead th tr { font-weight : bold ; padding: 0; margin: 0;}');
-		    mywindow.document.write('.receipt {border-top: 3px solid black; border-bottom: 1px solid black;}');
-		    mywindow.document.write('.receipt:nth-of-type(3n) {page-break-before:auto; page-break-inside:avoid; page-break-after:always; }');
-		    mywindow.document.write('.receipt:last-of-type { page-break : avoid ; }');
-		    mywindow.document.write('} </style>');
-		    mywindow.document.write('</head><body>');
-
-
-		    jQuery.each(receipts, function (key,value) {
-			    console.log(frame_receipt(value));
-			    mywindow.document.write(frame_receipt(value));
-		    });
-		    mywindow.document.write('</body></html>');
-		    mywindow.document.close(); // necessary for IE >= 10
-		    mywindow.focus(); // necessary for IE >= 10*/
-
-		    mywindow.print();
-		    mywindow.close();
-		    jQuery(parentobj).append("<h3>successfully printed </h3>");
-
-            },
-            error: function(response) {
-                console.log("error" + response);
-            },
-        });
-
+        print_n_receipts(donation_ids);
+        
     });
     /* Ajax utilitiy to print current donor list */
     jQuery("#print_button_jx").click ( function () {

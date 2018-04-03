@@ -327,21 +327,21 @@ function user_interaction($type) {
             }
 
             /*Address validation*/
-            if (!empty($_POST["u_addr"])) {
-                $address = test_input($_POST["u_addr"]);
+            if (!empty($_POST["u_addr_id"])) {
+                $address = test_input($_POST["u_addr_id"]);
             } else {                            
                 $addressErr = "Address is required";
             }
             /*Mobile Number validation*/
-            if (!empty($_POST["mob_num"])) {
-                $mobile = test_input($_POST["mob_num"]);
+            if (!empty($_POST["mob_num_id"])) {
+                $mobile = test_input($_POST["mob_num_id"]);
             } else {                            
                 $mobileErr = "Mobile Number is required";
             }
 
             /*Date of Birth validation*/
-            if (!empty($_POST["u_dob"])) {
-                $dob = test_input($_POST["u_dob"]);
+            if (!empty($_POST["u_dob_id"])) {
+                $dob = test_input($_POST["u_dob_id"]);
             } else {                            
                 $dobErr = "DOB is required";
             }
@@ -354,15 +354,15 @@ function user_interaction($type) {
             }
 
             /*Donation type validation*/
-            if (!empty($_POST["don_type"])) {
-                $dtype = test_input($_POST["don_type"]);
+            if (!empty($_POST["don_type_id"])) {
+                $dtype = test_input($_POST["don_type_id"]);
             } else {    						
                 $dtypeErr = "Donation type required";
             }
 
             /*donation amount validation*/
-            if (!empty($_POST["d_amount"])) {
-                $amount = test_input($_POST["d_amount"]);
+            if (!empty($_POST["d_amount_id"])) {
+                $amount = test_input($_POST["d_amount_id"]);
             } else {
                 $amount_error = "Donation is optional";
             }
@@ -373,11 +373,13 @@ function user_interaction($type) {
                     debug_print("$dob $unique_id");
                 }  				
             } else {
-                debug_print("pswd_error $pswd_error");
-                debug_print ("email_error $email_error");
-                debug_print ("genderErr $genderErr");
-                debug_print ("amount_error $amount_error");
-                debug_print ("donation type error $dtypeErr");
+                debug_print("pswd_error = $pswd_error ,");
+                debug_print ("email_error = $email_error ,");
+                debug_print ("genderErr = $genderErr ,");
+                debug_print ("amount_error = $amount_error ,");
+                debug_print ("donation type = $dtypeErr ,");
+                debug_print ("dob error = $dobErr ,");
+                debug_print ("unique id error = $unique_idErr ,");
             }
 
         } else if($new_donor=="Anonymous") {
@@ -385,26 +387,26 @@ function user_interaction($type) {
             if(!empty($_POST["firstName"])) {
                 $fname = test_input($_POST["firstName"]);
             } else {
-                $fname_error ="first name empty";
+                $fname_error ="first name empty ".$_POST["firstName"];
             }
 
             /*last name validation*/
             if(!empty($_POST["lastName"])) {
                 $lname = test_input($_POST["lastName"]);
             } else {
-                $lname_error ="lastname name empty";
+                $lname_error ="lastname name empty ".$_POST["lastName"];
             }
 
             if (!empty($_POST["don_type"])) {
                 $dtype = test_input($_POST["don_type"]);
             } else {                            
-                $dtypeErr = "Donation type required";
+                $dtypeErr = "Donation type required ".$_POST["don_type"];
             }
 
             if (!empty($_POST["d_amount"])) {
                 $amount = test_input($_POST["d_amount"]);
             } else {
-                $amount_error = "Donation is optional";
+                $amount_error = "Donation is optional ".$_POST["d_amount"];
             }
 
             $add_donation = "TRUE";
@@ -419,14 +421,14 @@ function user_interaction($type) {
 
             if (($uid = lookup_donor($d_uid)) != FALSE ) {
                 $add_donation = "TRUE";
-                if (!empty($_POST["don_type"])) {
-                    $dtype = test_input($_POST["don_type"]);
+                if (!empty($_POST["don_type_id"])) {
+                    $dtype = test_input($_POST["don_type_id"]);
                 } else {                            
                     $dtypeErr = "Donation type required";
                 }
 
-                if (!empty($_POST["d_amount"])) {
-                    $amount = test_input($_POST["d_amount"]);
+                if (!empty($_POST["d_amount_id"])) {
+                    $amount = test_input($_POST["d_amount_id"]);
                 } else {
                     $amount_error = "Donation is optional";
                 }
@@ -537,7 +539,7 @@ function user_interaction($type) {
             <tr id="fname" style="display:none">
                 <td>First Name</td>
                 <td>
-                    <input type="text" class="demoInputBox" name="firstName" 
+                    <input type="text" class="demoInputBox" id="firstName" name="firstName" 
                            value="<?php if(isset($_POST['firstName'])) echo $_POST['firstName']; ?>" 
                            size ="30" required > 
                 </td>
@@ -545,7 +547,7 @@ function user_interaction($type) {
             <tr id="lname" style="display:none">
                 <td>Last Name</td>
                 <td>
-                    <input type="text" class="demoInputBox" name="lastName" 
+                    <input type="text" class="demoInputBox" id="lastName" name="lastName"
                            value="<?php if(isset($_POST['lastName'])) echo $_POST['lastName']; ?>" 
                            size ="30" required > 
                 </td>
@@ -553,7 +555,7 @@ function user_interaction($type) {
             <tr id="d_uid" style="display:none">
                 <td>Donor ID</td>
                 <td>
-                    <input type="text" class="demoInputBox" name="donor_id" 
+                    <input type="text" class="demoInputBox" id="donor_id" name="donor_id"
                            placeholder="Donor Id or mobile or email" 
                            value="<?php if(isset($_POST['donor_id'])) echo $_POST['donor_id']; ?>"
                            size ="30" > 
@@ -563,7 +565,7 @@ function user_interaction($type) {
             <tr id="email" style="display:none">
                 <td>Email</td>
                 <td>
-                    <input type="email" class="demoInputBox" name="userEmail" 
+                    <input type="email" class="demoInputBox" id="userEmail" name="userEmail" 
                            placeholder="E-mail address" 
                            value="<?php if(isset($_POST['userEmail'])) echo $_POST['userEmail']; ?>" 
                            size ="30">
@@ -573,11 +575,11 @@ function user_interaction($type) {
             <!-- Displayed only for non-registered users -->
             <tr id="password" style="display:none">
                 <td>Password</td>
-                <td><input type="password" class="demoInputBox" name="password" value="" size ="30"></td>
+                <td><input type="password" class="demoInputBox" id="password" name="password" value="" size ="30"></td>
             </tr>
             <tr id="cpassword" style="display:none">
                 <td>Confirm Password</td>
-                <td><input type="password" class="demoInputBox" name="confirm_password" value="" size ="30"></td>
+                <td><input type="password" class="demoInputBox" id="confirm_password" name="confirm_password" value="" size ="30"></td>
             </tr>
 <?php } ?>
             <tr id="gender" style="display:none">
@@ -591,26 +593,26 @@ function user_interaction($type) {
             </tr>  
             <tr id="mob_num" style="display:none">
     		<td>Mobile Number</td>
-    		<td> <input type="tel" class="demoInputBox" name="mob_num" value="" placeholder="" size ="10" maxlength="10" minlength="10" required > </td>
+    		<td> <input type="tel" class="demoInputBox" id="mob_num_id" name="mob_num_id" value="" placeholder="" size ="10" maxlength="10" minlength="10" required > </td>
 	    </tr>
 	    <tr id="u_dob" style="display:none">
 		<td>Date of Birth</td>
-		<td><input type="date" class="demoInputBox" name="u_dob" value="" required></td>
+		<td><input type="date" class="demoInputBox" id="u_dob_id" name="u_dob_id" value="" required></td>
 	    </tr>
 	    <tr id="u_addr" style="display:none">
 		<td>Address</td>
-		<td> <textarea rows="4" cols="50" class="demoInputBox" name="u_addr" value="" placeholder="Your address" > </textarea> </td>
+		<td> <textarea rows="4" cols="50" class="demoInputBox" id="u_addr_id" name="u_addr_id" value="" placeholder="Your address" > </textarea> </td>
 	    </tr>
 
-	    <tr id="u_unique_id" style="display:none">
+	    <tr id="u_unique" style="display:none">
 		<td>Identification ID</td>
-		<td> <input type="number" class="demoInputBox" name="u_unique_id" placeholder="Aadhar card No" size ="16" required>  </td>
+		<td> <input type="number" class="demoInputBox" id="u_unique_id" name="u_unique_id" placeholder="Aadhar card No" size ="16" required >  </td>
 	    </tr>
 
 	    <tr id="u_dtype" style="display:none">
 		<td><label for="donationtype">Donate as</label></td>
 		<td>							
-		    <select id="donationtype" name="don_type" onchange="handle_donation(this.value)">
+		    <select name="don_type_id" id="don_type_id" onchange="handle_donation(this.value)">
 			    <option value="OFFLINE">Advance</option>
 			    <option value="CHEQUE">cheque</option>
 			    <option value="CASH" selected>cash</option>
@@ -621,7 +623,7 @@ function user_interaction($type) {
 	    </tr>
 	    <tr id="damount" style="display:none">
 		<td>Donation amount</td>
-		<td> <input type="text" class="demoInputBox"  name="d_amount" value="<?php if(isset($_POST['d_amount'])) { echo $_POST['d_amount'];} ?>" size ="30"> </td>
+		<td> <input type="text" class="demoInputBox"  id="d_amount_id" name="d_amount_id" value="<?php if(isset($_POST['d_amount_id'])) { echo $_POST['d_amount_id'];} ?>" size ="30"> </td>
 	    </tr>
 	    <tr id="u_buttons" style="display:none">
 	    <td></td>
@@ -645,6 +647,7 @@ function donor_retreival($type) {
 
     debug_print("welcome to Donations retrieval");
 
+    $usr_page = get_permalink( get_page_by_title('edit_user'));
     $s_expression="";
     $retrieve_now=FALSE;
     $retrieve_donors=FALSE;
@@ -773,7 +776,9 @@ function donor_retreival($type) {
                         } else {
                             $donor_id = get_donor_data($row->ID,'DONOR_ID');
                         }
-                        echo "$donor_id";
+                        //echo "$donor_id"; ?>
+			<a href="<?php echo $usr_page?>?d_id=<?php echo $row->ID ?>" > <?php echo $donor_id ?> </a>
+			<?php
                         echo "</td>";
                         /* Donor name */
                         echo "<td>";
@@ -964,7 +969,7 @@ function donation_retreival($type) {
                         $tusr = $wpdb->get_row("SELECT * FROM wp_users WHERE "." ID = $row->UID");                 
 ?>
                                 <td>
-                                <a href="<?php echo $usr_page?>?d_id=<?php echo $row->UID ?>" > <?php echo $tusr->display_name ?> </a>                   
+                                <?php echo $tusr->display_name ?>                  
                                 </td>
 <?php                
 
