@@ -541,7 +541,7 @@ function user_interaction($type) {
                 <td>
                     <input type="text" class="demoInputBox" id="firstName" name="firstName" 
                            value="<?php if(isset($_POST['firstName'])) echo $_POST['firstName']; ?>" 
-                           size ="30" required > 
+                           size ="30" required > <sup>*</sup>
                 </td>
             </tr>
             <tr id="lname" style="display:none">
@@ -549,7 +549,7 @@ function user_interaction($type) {
                 <td>
                     <input type="text" class="demoInputBox" id="lastName" name="lastName"
                            value="<?php if(isset($_POST['lastName'])) echo $_POST['lastName']; ?>" 
-                           size ="30" required > 
+                           size ="30" required > <sup>*</sup>
                 </td>
             </tr>
             <tr id="d_uid" style="display:none">
@@ -558,7 +558,7 @@ function user_interaction($type) {
                     <input type="text" class="demoInputBox" id="donor_id" name="donor_id"
                            placeholder="Donor Id or mobile or email" 
                            value="<?php if(isset($_POST['donor_id'])) echo $_POST['donor_id']; ?>"
-                           size ="30" > 
+                           size ="30" > <sup>*</sup>
                 </td>
             </tr>
 
@@ -593,11 +593,11 @@ function user_interaction($type) {
             </tr>  
             <tr id="mob_num" style="display:none">
     		<td>Mobile Number</td>
-    		<td> <input type="tel" class="demoInputBox" id="mob_num_id" name="mob_num_id" value="" placeholder="" size ="10" maxlength="10" minlength="10" required > </td>
+    		<td> <input type="tel" class="demoInputBox" id="mob_num_id" name="mob_num_id" value="" placeholder="" size ="10" maxlength="10" minlength="10" required > <sup>*</sup></td>
 	    </tr>
 	    <tr id="u_dob" style="display:none">
 		<td>Date of Birth</td>
-		<td><input type="date" class="demoInputBox" id="u_dob_id" name="u_dob_id" value="" required></td>
+		<td><input type="date" class="demoInputBox" id="u_dob_id" name="u_dob_id" value="" required><sup>*</sup></td>
 	    </tr>
 	    <tr id="u_addr" style="display:none">
 		<td>Address</td>
@@ -606,7 +606,7 @@ function user_interaction($type) {
 
 	    <tr id="u_unique" style="display:none">
 		<td>Identification ID</td>
-		<td> <input type="number" class="demoInputBox" id="u_unique_id" name="u_unique_id" placeholder="Aadhar card No" size ="16" required >  </td>
+		<td> <input type="number" class="demoInputBox" id="u_unique_id" name="u_unique_id" placeholder="Aadhar card No" size ="16" required >  <sup>*</sup></td>
 	    </tr>
 
 	    <tr id="u_dtype" style="display:none">
