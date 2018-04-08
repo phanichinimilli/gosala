@@ -129,15 +129,17 @@ function lookup_donor($d_uid) {
     $tb_donors = $wpdb->prefix."users";
     $tb_donor_data = $wpdb->prefix."usermeta";
     $results = "";
+    $pos = 0;
     //echo "input $d_uid ";
-    /* we accept email , mobile number , gosala generated unique id as user names */
-    if(strpos($d_uid,"@")) {
+    if($pos =strpos($d_uid,",")) {
+	    $mobile_num = substr($d_uid,$pos+1,strlen($d_uid)-2);
         /* Assuming it as email */
-        $sql_q = "SELECT * FROM $tb_donors WHERE user_email = \"$d_uid\"";
-        $results = $wpdb->get_results($sql_q);
-        if(!empty($results)) {
+	    $sql_q = "SELECT * FROM $tb_donors WHERE user_login = \"$mobile_num\"";
+            $results = $wpdb->get_results($sql_q);
+	    if(!empty($results)) {
             return $results[0]->ID;
         } else {
+	    debug_print(" no such user with info ".$mobile_num);
             return FALSE;
         }
     } else if(is_numeric($d_uid)){
@@ -559,6 +561,7 @@ function user_interaction($type) {
                            placeholder="Donor Id or mobile or email" 
                            value="<?php if(isset($_POST['donor_id'])) echo $_POST['donor_id']; ?>"
                            size ="30" > <sup>*</sup>
+		    <div id="donorList"></div>  
                 </td>
             </tr>
 
@@ -1125,6 +1128,33 @@ function ajx_add_donations () {
 		}
 		printf("$error_txt");
 	}
+    } else if($_REQUEST["operation"] == 'search_donor'){
+	    $donor_arr = array();
+	    $sql_q ="";
+	    $tb_donors  = $wpdb->prefix.'users';
+	    $tb_donor_data = $wpdb->prefix.'usermeta';
+	    $donor_data = json_decode(stripslashes($_REQUEST['donor_key']),true);
+	    //printf("key = ".$donor_data);
+	    if (!empty($donor_data)) {
+		    $sql_q = "SELECT * FROM $tb_donors LEFT JOIN $tb_donor_data ON $tb_donors.ID = $tb_donor_data.user_id WHERE ( meta_key='MOBILE' AND meta_value LIKE '$donor_data%' ) OR ( meta_key='first_name' AND meta_value LIKE '$donor_data%' ) OR ( meta_key='DONOR_ID' AND meta_value LIKE '$donor_data%' )";
+		    $donor_list = $wpdb->get_results($sql_q);
+		    if( !empty($donor_list)) {
+			    //print_r(json_encode($donor_list));
+			    foreach ($donor_list as $drow) {
+				    array_push($donor_arr,array (
+					    "meta_key" => $drow->meta_key,
+					    "meta_value" => $drow->meta_value,
+					    "name" => $drow->display_name,
+					    "mobile" => $drow->user_login,
+				    ));
+			    }
+			    //print_r($donor_arr);
+			    echo json_encode($donor_arr);
+		    } else {
+			    //echo json_encode(printf("error :no donors matching info::  $donor_data , sql: $sql_q");
+			    return 0;
+		    }
+	    }
     }
     wp_die();
 }

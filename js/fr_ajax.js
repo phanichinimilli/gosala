@@ -109,7 +109,63 @@ function print_n_receipts(donation_ids) {
 }
 
 jQuery(document).ready(function() {
-    
+   
+    /* Live search of donors */
+    jQuery("#donor_id").keyup(function() {
+        console.log("selected "+this.value);
+	var d_key = this.value;
+	if (d_key.length > 0) {
+        jQuery.ajax({
+            type:"POST",
+            //dataType : "json",
+            url: myAjax.ajaxurl,
+            data: { action : "my_action", 
+                "donor_key" :  JSON.stringify(d_key),
+                "operation" : "search_donor",
+            },
+            success:function(response){
+	    console.log("successfully recieved donor list "+ response );
+	    if (response.length > 0 ) {
+	    donor_l = JSON.parse(response);
+	    
+	    content = "";
+	    content = content.concat('<ul class="list-unstyled" style="list-style-type: none;">');
+	    if (donor_l.length > 0) {
+	    jQuery.each(donor_l, function (key,user_arr) {
+		    if (user_arr.meta_key == 'first_name') {
+		    	console.log("name = "+ user_arr.meta_value + "mobile = "+ user_arr.mobile);
+		    	content = content.concat('<li>'+user_arr.name + ','+ user_arr.mobile +'</li>');
+		    } else {
+		    	console.log("name = "+ user_arr.meta_value);
+		    	content = content.concat('<li>'+user_arr.meta_value+'</li>');
+		    }
+		    });
+	            content = content.concat('</ul>');
+
+	            jQuery("#donorList").fadeIn();
+	            jQuery("#donorList").html(content);
+	    } else {
+		    jQuery("#donorList").html("No such donor exists");
+		    jQuery("#donorList").fadeOut();
+	    }
+            } else {
+		    jQuery("#donorList").fadeOut();
+	    }
+	    },
+            error: function(response) {
+                console.log("donor retrieval error" + response);
+            },
+        });
+	} else {
+	    jQuery("#donorList").fadeOut();
+	}
+
+    });
+    jQuery(document).on('click', 'li', function(){ 
+    	console.log(" clicked "+jQuery(this).text());
+		    jQuery('#donor_id').val(jQuery(this).text());  
+		    jQuery('#donorList').fadeOut();  
+    });  
     /* Ajax utility to handle donor search selection */
     jQuery("#donor_srch_jx").change(function() {
         console.log("selected "+this.value);
