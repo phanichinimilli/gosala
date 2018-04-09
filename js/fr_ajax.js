@@ -145,7 +145,6 @@ jQuery(document).ready(function() {
 	            jQuery("#donorList").fadeIn();
 	            jQuery("#donorList").html(content);
 	    } else {
-		    jQuery("#donorList").html("No such donor exists");
 		    jQuery("#donorList").fadeOut();
 	    }
             } else {
