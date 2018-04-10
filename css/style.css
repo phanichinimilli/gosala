@@ -177,6 +177,19 @@ div.don_receipt tbody {
     line-height: 1.8;
     letter-spacing: 1px;
 }
+#donorList ul {
+    padding:0;
+    margin:0;
+    list-style-type: none;
+    background-color: #eebb00; 
+    cursor:pointer;
+}
+#donorList ul li {
+    padding: 0 0 1px 0;
+}
+#donorList ul li:hover {
+background-color: var(--main-color);
+}
 .print-link {
 display:inline-block;
 float:left;

@@ -129,7 +129,7 @@ jQuery(document).ready(function() {
 	    donor_l = JSON.parse(response);
 	    
 	    content = "";
-	    content = content.concat('<ul class="list-unstyled" style="list-style-type: none;">');
+	    content = content.concat('<ul>');
 	    if (donor_l.length > 0) {
 	    jQuery.each(donor_l, function (key,user_arr) {
 		    if (user_arr.meta_key == 'first_name') {
