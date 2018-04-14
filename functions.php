@@ -30,7 +30,7 @@ function gosala_theme_setup() {
     add_theme_support('menus');
     /*create custom menu in theme*/
     register_nav_menu('primary','Primary navigation menu');
-    register_nav_menu('secondary','secondary navigation menu');	
+    //register_nav_menu('secondary','secondary navigation menu');	
 
     $users_tb = $wpdb->prefix.'users';
     $tb_donations = $wpdb->prefix.'gs_donations';        
@@ -61,6 +61,33 @@ if (!current_user_can('administrator') && !is_admin()) {
 }
 }
 add_action('init','gosala_theme_setup');
+
+add_filter('wp_nav_menu_items','add_items_to_menu', 10, 2);
+function add_items_to_menu( $items, $args ) {
+	$admin_page_list = array ( "home",
+						 "donors",
+						 "donations",
+						 "contribute",
+ 						 "about-us",
+						 "contact-us" );
+	$donor_page_list = array ( "home",					 
+							   "about-us",
+							   "contact-us" );
+	
+    if( $args->theme_location == 'primary')  {
+          if (!current_user_can('administrator') && !is_admin()) {
+			  foreach ( $donor_page_list as $menu_item ) {
+				  $items .= '<li> <a href="'. get_permalink(get_page_by_title($menu_item)) . '"> '.ucfirst($menu_item). '</a></li>';
+			  }
+		  } else {
+			  foreach ( $admin_page_list as $menu_item ) {
+				  $items .= '<li> <a href="'. get_permalink(get_page_by_title($menu_item)) . '"> '.ucfirst($menu_item). '</a></li>';
+			  }
+		  } 
+    }
+    return $items;
+}
+
 /* Re-direct setup*/
 function my_login_redirect( $redirect_to, $request, $user ) {
     //is there a user to check?

@@ -23,14 +23,14 @@
 			</h2>
 			</a>
 			
-		</div>
-		
-		<?php if(has_nav_menu('primary')) { ?>	
-			<nav class="site-nav">
-				<?php wp_nav_menu(array('theme_location' => 'primary')) ?>				
-			</nav>
+		</div>		
 			
-		<?php } ?>
+		<?php if(has_nav_menu('primary')) { ?>	
+				<nav class="site-nav">
+					<?php wp_nav_menu(array('theme_location' => 'primary')) ?>				
+				</nav>			
+		<?php }     	
+		?>
 	</div>
 		<div class="row">
 			<div class="content">
