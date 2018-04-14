@@ -12,8 +12,8 @@ if(have_posts()) {
 		debug_print("fname".$_POST["fname"]."lname".$_POST["lname"]."mobile".$_POST["mobile"]."gender ".$_POST["gender"]."dob ".$_POST["dob"]."u_id ".$_POST["u_id"]."user id ".$_POST["id"]."address ".$_POST["u_addr"]);
 		$user_id = test_input($_POST["id"]);
 		$user_metadata = array(
-                    'f_name' => test_input($_POST["fname"]),
-                    'l_name'  => test_input($_POST["lname"]),
+                    'first_name' => test_input($_POST["fname"]),
+                    'last_name'  => test_input($_POST["lname"]),
                     'GENDER'     => test_input($_POST["gender"]),
                     'MOBILE'     => test_input($_POST["mobile"]),
                     'DOB'        => test_input(date('Y-m-d',strtotime($_POST["dob"]))),
@@ -26,7 +26,64 @@ if(have_posts()) {
                 	# code...
         		update_user_meta($user_id,$mkey,$mvalue);
     	        }
-    	echo "<h2>Successfully updated </h2>";
+		
+			echo "<table width='50%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
+			echo "<thead> <strong> Successfully updated </strong></thead>";
+			echo "<tbody>";     				        					
+		?>
+			<tr>
+		        <td>
+		        	<label>FirstName : </label>	            
+		        </td>	
+		        <td>	
+		        	<input type="text" value = "<?php echo $user_metadata["first_name"]; ?>" readonly> 
+		        </td>
+		    </tr>
+			<tr>
+		        <td>
+		        	<label>LastName : </label>	            
+		        </td>	
+		        <td>	
+		        	<input type="text" value = "<?php echo $user_metadata["last_name"]; ?>" readonly> 
+		        </td>
+		    </tr>
+			<tr>
+		        <td>
+		        	<label>GENDER : </label>	            
+		        </td>	
+		        <td>	
+		        	<input type="text" value = "<?php echo $user_metadata["GENDER"]; ?>" readonly> 
+		        </td>
+		    </tr>			
+			<tr>
+		        <td>
+		        	<label>MOBILE : </label>	            
+		        </td>	
+		        <td>	
+		        	<input type="text" value = "<?php echo $user_metadata["MOBILE"]; ?>" readonly> 
+		        </td>
+		    </tr>			
+			<tr>
+		        <td>
+		        	<label>DOB : </label>	            
+		        </td>	
+		        <td>	
+		        	<input type="text" value = "<?php echo $user_metadata["DOB"]; ?>" readonly> 
+		        </td>
+		    </tr>
+			<tr>
+		        <td>
+		        	<label>ADDRESS : </label>	            
+		        </td>	
+		        <td>	
+		        	<input type="date" value = "<?php echo $user_metadata["ADDRESS"]; ?>" readonly> 
+		        </td>
+		    </tr>	
+		<?php
+			echo "</tbody>";
+			echo "</table>";
+		
+    	
 	} 
 	else 
 	{

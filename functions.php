@@ -600,7 +600,7 @@ function user_interaction($type) {
 	    </tr>
 	    <tr id="u_dob" style="display:none">
 		<td>Date of Birth</td>
-		<td><input type="date" class="demoInputBox" id="u_dob_id" name="u_dob_id" value="" required><sup>*</sup></td>
+		<td><input type="date" class="demoInputBox" id="u_dob_id" name="u_dob_id" value="" max="<?php echo date("Y-m-d");?>" required><sup>*</sup></td>
 	    </tr>
 	    <tr id="u_addr" style="display:none">
 		<td>Address</td>
@@ -609,7 +609,7 @@ function user_interaction($type) {
 
 	    <tr id="u_unique" style="display:none">
 		<td>Identification ID</td>
-		<td> <input type="number" class="demoInputBox" id="u_unique_id" name="u_unique_id" placeholder="Aadhar card No" size ="16" required >  <sup>*</sup></td>
+		<td> <input type="number" class="demoInputBox" id="u_unique_id" name="u_unique_id" placeholder="Aadhar card No" size ="16" min="1" required >  <sup>*</sup></td>
 	    </tr>
 
 	    <tr id="u_dtype" style="display:none">

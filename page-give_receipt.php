@@ -130,7 +130,7 @@ function handle_pending_donation($donation_id) {
 	global $wpdb;	
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     $gr_page = get_permalink( get_page_by_title( 'give_receipt' ) );
-    echo "link".$gr_page;
+    //echo "link".$gr_page;
     $tb_donations = $wpdb->prefix.'gs_donations';
     $sql = "SELECT * FROM $tb_donations WHERE DID = $donation_id";
     $g_udetails = "SELECT * FROM wp_users WHERE ";
@@ -228,15 +228,15 @@ if(have_posts()) {
 		} else {
 			if (!empty($_POST["d_id"])) {
                 $d_id = test_input($_POST["d_id"]);
-                echo "donation id $d_id";
+                //echo "donation id $d_id";
             }
             if (!empty($_POST["d_date"])) {
                 $d_date = test_input($_POST["d_date"]);
-                echo "donation id $d_date";
+                //echo "donation id $d_date";
             }
             if (!empty($_POST["p_mode"])) {
                 $p_mode = test_input($_POST["p_mode"]);
-                echo "donation id $p_mode";
+                //echo "donation id $p_mode";
                 if($p_mode != "OFFLINE") {
                 	$p_status = "DONE";
             	} else {
@@ -246,7 +246,7 @@ if(have_posts()) {
             
              if (!empty($_POST["d_amnt"])) {
                 $d_amnt = test_input($_POST["d_amnt"]);
-                echo "donation id $d_amnt";
+                //echo "donation id $d_amnt";
             }
 
 			/*$tmp = date('Y-m-d', strtotime($d_date));*/
@@ -260,8 +260,46 @@ if(have_posts()) {
 							AMNT = \"$d_amnt\"
 							WHERE DID = $d_id												
 						");
-    		if(!empty($result)) {
-    			echo "<h3> Successfully updated </h3>";	
+    		if(!empty($result)) {    			
+				echo "<table width='50%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
+				echo "<thead> <strong> Successfully updated </strong></thead>";
+				echo "<tbody>";     				        					
+			?>
+				<tr>
+					<td>
+						<label>Donoation id : </label>	            
+					</td>	
+					<td>	
+						<input type="text" value = "<?php echo $d_id ?>" readonly> 
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label>Amount : </label>	            
+					</td>	
+					<td>	
+						<input type="text" value = "<?php echo $d_amnt ?>" readonly> 
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label>Date : </label>	            
+					</td>	
+					<td>	
+						<input type="date" value = "<?php echo $d_date ?>" readonly> 
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label>Payment mode : </label>	            
+					</td>	
+					<td>	
+						<input type="text" value = "<?php echo $p_mode ?>" readonly> 
+					</td>
+				</tr>
+			<?php
+				echo "</tbody>";
+				echo "</table>";		
     		} else {
     			echo "<h3> Not Updated , please check the data</h3>";	
     		}
