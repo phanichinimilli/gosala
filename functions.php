@@ -585,7 +585,7 @@ function user_interaction($type) {
                 <td>Donor ID</td>
                 <td>
                     <input type="text" class="demoInputBox" id="donor_id" name="donor_id"
-                           placeholder="Donor Id or mobile or email" 
+                           placeholder="Donor Id or mobile or name" 
                            value="<?php if(isset($_POST['donor_id'])) echo $_POST['donor_id']; ?>"
                            size ="30" > <sup>*</sup>
 		    <div id="donorList"></div>  
