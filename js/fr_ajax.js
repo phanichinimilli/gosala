@@ -209,6 +209,8 @@ jQuery(document).ready(function() {
 			
 			/* required and option feilds */
 			jQuery("#donor_id").attr('required',true);
+			jQuery("#d_amount_id").attr('required',true);
+			jQuery("#don_type_id").attr('required',true);
 			jQuery("#firstName").attr('required',false);
 			jQuery("#lastName").attr('required',false);
 			jQuery("#mob_num_id").attr('required',false);

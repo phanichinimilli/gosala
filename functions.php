@@ -534,7 +534,8 @@ function user_interaction($type) {
 
 ?>
 
-	<button id="prnt_sngl_rcpt" value="<?php echo $d_id?>"> Get Receipt </button>
+	<button id="prnt_sngl_rcpt" value="<?php echo $d_id?>" class="input-button input-text-normal"> Get Receipt </button>
+			
             <!--
             <a href="<?php echo $gr_page ?>?donation_id=<?php echo $d_id ?>" > <button type="button">Get Receipt</button> </a>
             -->
@@ -554,7 +555,7 @@ function user_interaction($type) {
             <td>
 
             <!-- <select id="donortype_jx" name="new_donor" onchange="display_apt_ele(this.value)"> -->
-            <select id="donortype_jx" name="new_donor" >
+            <select id="donortype_jx" name="new_donor" class="input-selection input-text-medium">
             <option value="None" selected>- None -</option>
             <option value="New">Register</option>
             <option value="Existing">Existing user</option>
@@ -568,7 +569,7 @@ function user_interaction($type) {
             <tr id="fname" style="display:none">
                 <td>First Name</td>
                 <td>
-                    <input type="text" class="demoInputBox" id="firstName" name="firstName" 
+                    <input type="text" class="input-text" id="firstName" name="firstName" 
                            value="<?php if(isset($_POST['firstName'])) echo $_POST['firstName']; ?>" 
                            size ="30" required > <sup>*</sup>
                 </td>
@@ -576,7 +577,7 @@ function user_interaction($type) {
             <tr id="lname" style="display:none">
                 <td>Last Name</td>
                 <td>
-                    <input type="text" class="demoInputBox" id="lastName" name="lastName"
+                    <input type="text" class="input-text" id="lastName" name="lastName"
                            value="<?php if(isset($_POST['lastName'])) echo $_POST['lastName']; ?>" 
                            size ="30" required > <sup>*</sup>
                 </td>
@@ -584,18 +585,18 @@ function user_interaction($type) {
             <tr id="d_uid" style="display:none">
                 <td>Donor ID</td>
                 <td>
-                    <input type="text" class="demoInputBox" id="donor_id" name="donor_id"
+                    <input type="text" class="input-text" id="donor_id" name="donor_id"
                            placeholder="Donor Id or mobile or name" 
                            value="<?php if(isset($_POST['donor_id'])) echo $_POST['donor_id']; ?>"
-                           size ="30" > <sup>*</sup>
-		    <div id="donorList"></div>  
+                           size ="30" > <sup style="float:left;">*</sup>
+		    <div id="donorList" ></div>  
                 </td>
             </tr>
 
             <tr id="email" style="display:none">
                 <td>Email</td>
                 <td>
-                    <input type="email" class="demoInputBox" id="userEmail" name="userEmail" 
+                    <input type="email" class="input-text" id="userEmail" name="userEmail" 
                            placeholder="E-mail address" 
                            value="<?php if(isset($_POST['userEmail'])) echo $_POST['userEmail']; ?>" 
                            size ="30">
@@ -605,11 +606,11 @@ function user_interaction($type) {
             <!-- Displayed only for non-registered users -->
             <tr id="password" style="display:none">
                 <td>Password</td>
-                <td><input type="password" class="demoInputBox" id="password" name="password" value="" size ="30"></td>
+                <td><input type="password" class="input-text" id="password" name="password" value="" size ="30"></td>
             </tr>
             <tr id="cpassword" style="display:none">
                 <td>Confirm Password</td>
-                <td><input type="password" class="demoInputBox" id="confirm_password" name="confirm_password" value="" size ="30"></td>
+                <td><input type="password" class="input-text" id="confirm_password" name="confirm_password" value="" size ="30"></td>
             </tr>
 <?php } ?>
             <tr id="gender" style="display:none">
@@ -623,26 +624,26 @@ function user_interaction($type) {
             </tr>  
             <tr id="mob_num" style="display:none">
     		<td>Mobile Number</td>
-    		<td> <input type="tel" class="demoInputBox" id="mob_num_id" name="mob_num_id" value="" placeholder="" size ="10" maxlength="10" minlength="10" required > <sup>*</sup></td>
+    		<td> <input type="tel" class="input-text" id="mob_num_id" name="mob_num_id" value="" placeholder="" size ="10" maxlength="10" minlength="10" required > <sup>*</sup></td>
 	    </tr>
 	    <tr id="u_dob" style="display:none">
 		<td>Date of Birth</td>
-		<td><input type="date" class="demoInputBox" id="u_dob_id" name="u_dob_id" value="" max="<?php echo date("Y-m-d");?>" required><sup>*</sup></td>
+		<td><input type="date" class="input-text-medium" id="u_dob_id" name="u_dob_id" value="" max="<?php echo date("Y-m-d");?>" required><sup>*</sup></td>
 	    </tr>
 	    <tr id="u_addr" style="display:none">
 		<td>Address</td>
-		<td> <textarea rows="4" cols="50" class="demoInputBox" id="u_addr_id" name="u_addr_id" value="" placeholder="Your address" > </textarea> </td>
+		<td> <textarea rows="4" cols="50" class="input-text" id="u_addr_id" name="u_addr_id" value="" placeholder="Your address" > </textarea> </td>
 	    </tr>
 
 	    <tr id="u_unique" style="display:none">
 		<td>Identification ID</td>
-		<td> <input type="number" class="demoInputBox" id="u_unique_id" name="u_unique_id" placeholder="Aadhar card No" size ="16" min="1" required >  <sup>*</sup></td>
+		<td> <input type="number" class="input-text" id="u_unique_id" name="u_unique_id" placeholder="Aadhar card No" size ="16" min="1" required >  <sup>*</sup></td>
 	    </tr>
 
 	    <tr id="u_dtype" style="display:none">
 		<td><label for="donationtype">Donate as</label></td>
 		<td>							
-		    <select name="don_type_id" id="don_type_id" onchange="handle_donation(this.value)">
+		    <select name="don_type_id" id="don_type_id" onchange="handle_donation(this.value)" class="input-selection input-text-normal">
 			    <option value="OFFLINE">Advance</option>
 			    <option value="CHEQUE">cheque</option>
 			    <option value="CASH" selected>cash</option>
@@ -653,13 +654,13 @@ function user_interaction($type) {
 	    </tr>
 	    <tr id="damount" style="display:none">
 		<td>Donation amount</td>
-		<td> <input type="text" class="demoInputBox"  id="d_amount_id" name="d_amount_id" value="<?php if(isset($_POST['d_amount_id'])) { echo $_POST['d_amount_id'];} ?>" size ="30"> </td>
+		<td> <input type="text" class="input-text input-text-normal"  id="d_amount_id" name="d_amount_id" value="<?php if(isset($_POST['d_amount_id'])) { echo $_POST['d_amount_id'];} ?>" size ="30"> </td>
 	    </tr>
 	    <tr id="u_buttons" style="display:none">
 	    <td></td>
 	    <td>
-		<input type="reset" value ="Clear">
-		<input type="submit" id="reg_btn" name="register-user" value="Join Us" class="btnRegister">
+		<input type="reset" value ="Clear" class="input-button">
+		<input type="submit" id="reg_btn" name="register-user" value="Join Us" class="btnRegister input-button">
 	    </td>
 	    </tr>
 	    <tr>
@@ -689,9 +690,9 @@ function donor_retreival($type) {
         <tbody>
 
         <tr>
-            <td><label for="donor_srch_jx" > Select a value to <h2>Search Donors</h2> </label></td>
+            <td><label for="donor_srch_jx" ><h2>Search Donors</h2> </label></td>
             <td>                            
-                <select id="donor_srch_jx" name="s_criteria" >
+                <select id="donor_srch_jx" name="s_criteria" class="input-selection">
                 <option value="donor_all">ALL DONORS</option>                	
                 <option value="d_info">Donor Info</option>
                 </select>
@@ -699,15 +700,18 @@ function donor_retreival($type) {
         </tr>
 
         <tr id="sexp" style="display:none">
-            <td>Search expression</td>
+            <td>
+			<label for="sexp_t" > Enter </label>
+			
+			</td>
             <td>                
-            <input id="sexp_t" type="text"  name="s_expression" placeholder=" name or address or donor id" >
+            <input id="sexp_t" type="text"  name="s_expression" placeholder="Name or Address or donor-id" class="input-text">
             </td>
         </tr>
 
         <tr>
             <td colspan=2 style="text-align:center">
-                <input type="submit" name="s_donor" value="Search" >
+                <input type="submit" name="s_donor" value="Search" class="input-button" >
             </td>
         </tr>
 
@@ -758,22 +762,23 @@ function donor_retreival($type) {
                 $results = $wpdb->get_results($sql_q);
                 if(!empty($results)) {
 ?>
-                    <p class ="sucs_msg">  </p>
-
-                    <div class="no-printdonor" >
-		    <p>
-			<button id="print_button_jx" >print</button>
-			<button id="del_button_jx" >Delete</button>
-			<button id="p_button_jx" >Advance Receipt</button>
-		    	<label> Custom amount </label> <input type="text" id="d_amount" value="1100" size ="10">
-		    </p>
-<?php
-                    //echo do_shortcode("[print_button]");
-?>
-                    </div> <!-- end no_print_donor-->
+                    <p class ="sucs_msg">  </p>		    
+     
 
                     <table width='100%' border='0'>
                     <thead>
+					
+					<tr> 
+						<td colspan=3>
+						<div class="no-printdonor donor-print" >
+						<input type="button" id="print_button_jx" value="Print" class="input-button" >
+						<input type="button" id="del_button_jx" value="Delete" class="input-button" >
+						<input type="button" id="p_button_jx" value="Advance Receipt" class="input-button" >						
+						<input type="text" id="d_amount" value="1100" size ="10" class="input-text-normal">
+						</div> <!-- end no_print_donor-->
+						</td>						
+					</tr>
+					
                     <tr>
                         <td>
                         <input type="checkbox" value="<?php if(isset($_POST['select_all'])) { echo "ALL"; } else { echo "NONE";} ?>" 
@@ -796,7 +801,7 @@ function donor_retreival($type) {
                         /* Pick a donor  */
                         echo "<td>";
 ?>
-                        <input type="checkbox" class="drow"  name=<?php echo $row->ID ?> value=<?php echo $row->ID ?> >
+                        <input type="checkbox" class="drow input-check"  name=<?php echo $row->ID ?> value=<?php echo $row->ID ?> >
 <?php
                         echo "</td>";
                         /* Donor ID */
@@ -860,7 +865,7 @@ function donation_retreival($type) {
         <tr>
             <td><label for="donation_srch_jx" > Select a value to <h2>search Donations</h2> </label></td>
             <td >                            
-                <select id="donation_srch_jx" name="s_criteria" >
+                <select id="donation_srch_jx" name="s_criteria" class="input-selection">
                     <option value="show_all">ALL DONATIONS</option>                
                     <option value="d_name">Name</option>
                     <option value="dates">Dates</option>                         
@@ -873,22 +878,23 @@ function donation_retreival($type) {
         <b>value</b>
         </td>
         <td>                
-        <input id="sexp_t" type="text"  name="s_expression" placeholder="Donor Id or Name" size ="30">
+        <input id="sexp_t" type="text"  name="s_expression" placeholder="Donor Id or Name" size ="30" class="input-text">
         </td>
         </tr>
         
         <tr id="dates" style="display:none;">
         <td>
-        <b>From </b> <input id="sexp_fd"  type="date"  name="from_date" >
+        <b>From </b> <input id="sexp_fd"  type="date"  name="from_date" class="input-text">
         </td>
         <td>
-        <b>To </b> <input id="sexp_td"  type="date"  name="to_date"   >
+        <b>To </b> <input id="sexp_td"  type="date"  name="to_date"   class="input-text">
         </td>
         </tr>
-
+		<tr></tr>
         <tr>
+		<td></td>
         <td style="text-align:center">
-        <input type="submit" name="s_donor" value="Search" >
+        <input type="submit" name="s_donor" value="Search" class="input-button input-text-normal">
         </td>
         </tr>
         </tbody>
@@ -975,7 +981,8 @@ function donation_retreival($type) {
                     echo "<table width='100%' border='0'>"; // Adding <table> and <tbody> tag outside foreach loop so that it wont create again and again
                     echo "<thead>";
 ?>
-                            <button id="p_all_don_jx" > print all </button>
+					<input type="button" name="s_donor" id="p_all_don_jx" value="print selected" class="input-button input-text-normal">
+                            
 <?php
                     echo "</thead>";
 
