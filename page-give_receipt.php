@@ -286,7 +286,7 @@ if(have_posts()) {
 						<label>Date : </label>	            
 					</td>	
 					<td>	
-						<input type="date" value = "<?php echo $d_date ?>" readonly> 
+						<input type="date" value = "<?php echo $d_date ?>" readonly > 
 					</td>
 				</tr>
 				<tr>

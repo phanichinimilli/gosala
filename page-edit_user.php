@@ -36,7 +36,7 @@ if(have_posts()) {
 		        	<label>FirstName : </label>	            
 		        </td>	
 		        <td>	
-		        	<input type="text" value = "<?php echo $user_metadata["first_name"]; ?>" readonly> 
+		        	<input type="text" value = "<?php echo $user_metadata["first_name"]; ?>" readonly class="input-text"> 
 		        </td>
 		    </tr>
 			<tr>
@@ -44,7 +44,7 @@ if(have_posts()) {
 		        	<label>LastName : </label>	            
 		        </td>	
 		        <td>	
-		        	<input type="text" value = "<?php echo $user_metadata["last_name"]; ?>" readonly> 
+		        	<input type="text" value = "<?php echo $user_metadata["last_name"]; ?>" readonly class="input-text"> 
 		        </td>
 		    </tr>
 			<tr>
@@ -52,7 +52,7 @@ if(have_posts()) {
 		        	<label>GENDER : </label>	            
 		        </td>	
 		        <td>	
-		        	<input type="text" value = "<?php echo $user_metadata["GENDER"]; ?>" readonly> 
+		        	<input type="text" value = "<?php echo $user_metadata["GENDER"]; ?>" readonly class="input-text"> 
 		        </td>
 		    </tr>			
 			<tr>
@@ -60,7 +60,7 @@ if(have_posts()) {
 		        	<label>MOBILE : </label>	            
 		        </td>	
 		        <td>	
-		        	<input type="text" value = "<?php echo $user_metadata["MOBILE"]; ?>" readonly> 
+		        	<input type="text" value = "<?php echo $user_metadata["MOBILE"]; ?>" readonly class="input-text"> 
 		        </td>
 		    </tr>			
 			<tr>
@@ -68,7 +68,7 @@ if(have_posts()) {
 		        	<label>DOB : </label>	            
 		        </td>	
 		        <td>	
-		        	<input type="text" value = "<?php echo $user_metadata["DOB"]; ?>" readonly> 
+		        	<input type="text" value = "<?php echo $user_metadata["DOB"]; ?>" readonly class="input-text"> 
 		        </td>
 		    </tr>
 			<tr>
@@ -76,7 +76,7 @@ if(have_posts()) {
 		        	<label>ADDRESS : </label>	            
 		        </td>	
 		        <td>	
-		        	<input type="date" value = "<?php echo $user_metadata["ADDRESS"]; ?>" readonly> 
+		        	<input type="textarea" value = "<?php echo $user_metadata["ADDRESS"]; ?>" readonly class="input-text"> 
 		        </td>
 		    </tr>	
 		<?php
@@ -114,7 +114,7 @@ if(have_posts()) {
 			            	<label>Donor Login : </label>	            
 			            </td>	
 			            <td>	
-			            	<input type="text" value = "<?php echo $results->user_login; ?>" readonly> 
+			            	<input type="text" value = "<?php echo $results->user_login; ?>" class="input-text" readonly> 
 			            </td>
 		            </tr>
 		        <?php	         
@@ -132,7 +132,7 @@ if(have_posts()) {
 			            	<label>First Name : </label>	            
 			            </td>	
 			            <td>
-			            	<input type="text" name="fname" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>"> 
+			            	<input type="text" name="fname" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>" class="input-text"> 
 			            </td>
 		            </tr>
 		        <?php
@@ -150,7 +150,7 @@ if(have_posts()) {
 			            	<label>Last Name : </label>	            
 			            </td>	
 			            <td>
-			            	<input type="text" name="lname" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>"> 
+			            	<input type="text" name="lname" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>" class="input-text"> 
 			            </td>
 		            </tr>
 		        <?php
@@ -168,7 +168,7 @@ if(have_posts()) {
 			            	<label>Address : </label>	            
 			            </td>	
 			            <td>
-			            	<textarea name="u_addr" placeholder="<?php echo $ph; ?>" ><?php echo $value; ?> </textarea> 
+			            	<textarea name="u_addr" placeholder="<?php echo $ph; ?>" class="input-text">  <?php echo $value;  ?> </textarea> 
 			            </td>
 		            </tr>
 
@@ -187,7 +187,7 @@ if(have_posts()) {
 			            	<label>Mobile : </label>	            
 			            </td>	
 			            <td>
-			            	<input type="tel" name="mobile" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>" > 
+			            	<input type="tel" name="mobile" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>" class="input-text" > 
 			            </td>
 		            </tr>
 		        <?php
@@ -205,7 +205,7 @@ if(have_posts()) {
 			            	<label>Gender : </label>	 
 			            </td>	
 			            <td>		            	
-			            	<select id="gender" name="gender">
+			            	<select id="gender" name="gender" class="input-selection">
 						      <option value="MALE"  <?php if(strtoupper($value) == "MALE") { echo "selected"; } ?>>MALE</option>
 						      <option value="FEMALE" <?php if(strtoupper($value) == "FEMALE") { echo "selected"; }?>>FEMALE</option>					      
 							</select>
@@ -226,7 +226,7 @@ if(have_posts()) {
 			            	<label>DOB : </label>	 
 			            </td>	
 			            <td>	           
-			            	<input type="date" name="dob" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>" > 
+			            	<input type="date" name="dob" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>" class="input-text-medium"> 
 			            </td>
 		            </tr>
 		        <?php
@@ -244,7 +244,7 @@ if(have_posts()) {
 		            	<label>UNIQUE Identifaction : </label>	 
 		            </td>	
 		            <td>	           
-		            	<input type="number" name="u_id" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>" > 
+		            	<input type="number" name="u_id" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>" class="input-text"> 
 		            </td>
 	            </tr>
 	        
@@ -252,7 +252,7 @@ if(have_posts()) {
 					<td></td>
 					<td>	
 						<input name="id" id="id" style="display: none" value="<?php echo $user_id ?>">                    
-						<input type="submit" id="reg_btn" name="register-user" value="Update" class="btnRegister">
+						<input type="submit" id="reg_btn" name="register-user" value="Update" class="btnRegister input-button">
 					</td>
 				</tr>
 	        </form>

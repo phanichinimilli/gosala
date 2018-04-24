@@ -217,7 +217,7 @@ function update_donor_info(array $userdata,array $user_metadata) {
     $user_id = wp_insert_user($userdata);
     /* On success */
     //printf("unique id generated for user id =%s is %s \n",$user_id,generate_duid($user_id));
-    if ( ! is_wp_error( $user_id ) ) {
+    if ( !is_wp_error( $user_id ) ) {
         debug_print("User created : ". $user_id);
 
         add_user_meta($user_id,"DONOR_ID",generate_duid($user_id));
@@ -226,7 +226,7 @@ function update_donor_info(array $userdata,array $user_metadata) {
             add_user_meta($user_id,$mkey,$mvalue);
         }
     } else {
-        echo "Issue is Updating Donor Information";
+        echo "Issue in Updating Donor Information";
     }
     return $user_id;
 }
@@ -263,6 +263,7 @@ function give_receipt($donation_id) {
             <thead>
             <h2 style="text-align: center;" > Donation Receipt <h2>
             </thead>
+			
 <?php
         echo "<tbody>";     
 
@@ -474,7 +475,7 @@ function user_interaction($type) {
 
         if($update_donor == "TRUE") {
             /*create an entry for new donor*/
-            debug_print(" add new donor $fname "."$lname "."$pswd "."$email "."$gender ");
+            debug_print(" add new donor $fname "."$lname "."$pswd "."$email "."$gender "."$dob ");
 
             $userdata = array(
                 'user_login'     => $user_name,
