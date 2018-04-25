@@ -76,7 +76,7 @@ if(have_posts()) {
 		        	<label>ADDRESS : </label>	            
 		        </td>	
 		        <td>	
-		        	<input type="textarea" value = "<?php echo $user_metadata["ADDRESS"]; ?>" readonly class="input-text"> 
+		        	<textarea readonly class="input-text" rows="4" cols="50"> <?php echo $user_metadata["ADDRESS"]; ?> </textarea> 
 		        </td>
 		    </tr>	
 		<?php
@@ -168,7 +168,7 @@ if(have_posts()) {
 			            	<label>Address : </label>	            
 			            </td>	
 			            <td>
-			            	<textarea name="u_addr" placeholder="<?php echo $ph; ?>" class="input-text">  <?php echo $value;  ?> </textarea> 
+			            	<textarea name="u_addr" placeholder="<?php echo $ph; ?>" class="input-text"><?php echo $value;  ?></textarea> 
 			            </td>
 		            </tr>
 

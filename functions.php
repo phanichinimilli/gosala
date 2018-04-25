@@ -208,7 +208,7 @@ function test_input($data) {
 
 function generate_duid($user_id) {
     $cdate = getdate();
-    $duid = sprintf("GS%02s%02s%02s%04s",$cdate[mday],$cdate[mon],substr($cdate[year],-2),$user_id);
+    $duid = sprintf("GS%02s%02s%02s%04s",$cdate['mday'],$cdate['mon'],substr($cdate['year'],-2),$user_id);
     return $duid;
 }
 
@@ -572,7 +572,7 @@ function user_interaction($type) {
                 <td>
                     <input type="text" class="input-text" id="firstName" name="firstName" 
                            value="<?php if(isset($_POST['firstName'])) echo $_POST['firstName']; ?>" 
-                           size ="30" required > <sup>*</sup>
+                           size ="30" required pattern="^[a-zA-Z0-9]+$" title="Special charecters are not allowed"> <sup>*</sup>
                 </td>
             </tr>
             <tr id="lname" style="display:none">
@@ -580,7 +580,7 @@ function user_interaction($type) {
                 <td>
                     <input type="text" class="input-text" id="lastName" name="lastName"
                            value="<?php if(isset($_POST['lastName'])) echo $_POST['lastName']; ?>" 
-                           size ="30" required > <sup>*</sup>
+                           size ="30" required pattern="^[a-zA-Z0-9]+$" title="Special charecters are not allowed"> <sup>*</sup>
                 </td>
             </tr>
             <tr id="d_uid" style="display:none">
@@ -589,7 +589,7 @@ function user_interaction($type) {
                     <input type="text" class="input-text" id="donor_id" name="donor_id"
                            placeholder="Donor Id or mobile or name" 
                            value="<?php if(isset($_POST['donor_id'])) echo $_POST['donor_id']; ?>"
-                           size ="30" > <sup style="float:left;">*</sup>
+                           size ="30" pattern="^[a-zA-Z0-9]+$" title="Special charecters are not allowed"> <sup style="float:left;">*</sup>
 		    <div id="donorList" ></div>  
                 </td>
             </tr>
@@ -629,7 +629,7 @@ function user_interaction($type) {
 	    </tr>
 	    <tr id="u_dob" style="display:none">
 		<td>Date of Birth</td>
-		<td><input type="date" class="input-text-medium" id="u_dob_id" name="u_dob_id" value="" max="<?php echo date("Y-m-d");?>" required><sup>*</sup></td>
+		<td><input type="date" class="input-text-medium" id="u_dob_id" name="u_dob_id" value="" min="1970-01-01" max="<?php echo date("Y-m-d");?>" required title="Minimum value accepted is 1970-01-01"><sup>*</sup></td>
 	    </tr>
 	    <tr id="u_addr" style="display:none">
 		<td>Address</td>
@@ -644,7 +644,7 @@ function user_interaction($type) {
 	    <tr id="u_dtype" style="display:none">
 		<td><label for="donationtype">Donate as</label></td>
 		<td>							
-		    <select name="don_type_id" id="don_type_id" onchange="handle_donation(this.value)" class="input-selection input-text-normal">
+		    <select name="don_type_id" id="don_type_id" onchange="handle_donation(this.value)" class="input-selection input-text-medium">
 			    <option value="OFFLINE">Advance</option>
 			    <option value="CHEQUE">cheque</option>
 			    <option value="CASH" selected>cash</option>
@@ -655,7 +655,7 @@ function user_interaction($type) {
 	    </tr>
 	    <tr id="damount" style="display:none">
 		<td>Donation amount</td>
-		<td> <input type="text" class="input-text input-text-normal"  id="d_amount_id" name="d_amount_id" value="<?php if(isset($_POST['d_amount_id'])) { echo $_POST['d_amount_id'];} ?>" size ="30"> </td>
+		<td> <input type="number" class="input-text input-text-normal"  id="d_amount_id" name="d_amount_id" min="1" value="<?php if(isset($_POST['d_amount_id'])) { echo $_POST['d_amount_id'];} ?>" size ="30" > </td>
 	    </tr>
 	    <tr id="u_buttons" style="display:none">
 	    <td></td>
