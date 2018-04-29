@@ -589,7 +589,7 @@ function user_interaction($type) {
                     <input type="text" class="input-text" id="donor_id" name="donor_id"
                            placeholder="Donor Id or mobile or name" 
                            value="<?php if(isset($_POST['donor_id'])) echo $_POST['donor_id']; ?>"
-                           size ="30" pattern="^[a-zA-Z0-9]+$" title="Special charecters are not allowed"> <sup style="float:left;">*</sup>
+                           size ="30" pattern="^[a-zA-Z0-9]+$" title="Special charecters are not allowed"> <sup>*</sup>
 		    <div id="donorList" ></div>  
                 </td>
             </tr>
