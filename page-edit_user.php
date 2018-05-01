@@ -226,7 +226,7 @@ if(have_posts()) {
 			            	<label>DOB : </label>	 
 			            </td>	
 			            <td>	           
-			            	<input type="date" name="dob" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>" class="input-text-medium"> 
+			            	<input type="date" name="dob" placeholder="<?php echo $ph; ?>" value = "<?php echo $value; ?>" class="input-text"> 
 			            </td>
 		            </tr>
 		        <?php
