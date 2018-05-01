@@ -74,16 +74,16 @@ function add_items_to_menu( $items, $args ) {
 							   "about-us",
 							   "contact-us" );
 	
-    if( $args->theme_location == 'primary')  {
-          if (!current_user_can('administrator') && !is_admin()) {
-			  foreach ( $donor_page_list as $menu_item ) {
-				  $items .= '<li> <a href="'. get_permalink(get_page_by_title($menu_item)) . '"> '.ucfirst($menu_item). '</a></li>';
-			  }
-		  } else {
+    if( $args->theme_location == 'primary')  {		  
+		  if (current_user_can('administrator') || current_user_can('contributor')) {			  
 			  foreach ( $admin_page_list as $menu_item ) {
 				  $items .= '<li> <a href="'. get_permalink(get_page_by_title($menu_item)) . '"> '.ucfirst($menu_item). '</a></li>';
 			  }
-		  } 
+		  } else {
+			  foreach ( $donor_page_list as $menu_item ) {
+				  $items .= '<li> <a href="'. get_permalink(get_page_by_title($menu_item)) . '"> '.ucfirst($menu_item). '</a></li>';
+			  }
+		  }
     }
     return $items;
 }
